@@ -114,6 +114,7 @@ reverse. None of them contradicts a decision above.
 | Privacy | A Content-Security-Policy limits the page to its own origin (`connect-src`, `form-action`, fonts). next/font self-hosts Figtree and DM Mono | "Nothing leaves the device" is enforced, not just intended |
 | Sentence pool | 9 new pairs hand-written against the rule; every pair is exactly 15 words and has a comma | A constant `n / 15`; the comma feeds the apostrophe |
 | Apostrophe | If the pair has no `'`, the font's `'` (and `’`) is the writer's own comma, raised to the ascender | The note says "it's"; the glyph is still their ink, never a stand-in |
+| Logo is home | Past Hero, the logo is a button back to Hero. The writing stays in memory, so picking an ink returns to it with every word kept; a build in progress is dropped and runs again on Done | Lets people get back without a reload, and nothing they wrote is lost |
 | Variants | At most two forms per letter: the model's best-scored sample is the default, the next is the `calt` alternate, unless it scores more than 3 nats (about 20×) below | SPEC §6.4 made concrete |
 | `calt` rule | A letter takes its alternate whenever the glyph before it is a default lowercase letter (GSUB chaining context, format 3). The note on Done uses the same rule | Repeats never look stamped (`ll` → `l l.alt`); checked with HarfBuzz |
 | Capitals | The default lowercase strokes (not outlines) are scaled so the centre line reaches 660 units (≈ 700 with the pen), clamped 0.7–1.6×, then drawn with the same pen | Stroke weight matches the lowercase |
@@ -132,6 +133,7 @@ reverse. None of them contradicts a decision above.
 | Small phones | At ≤ 400 px the wordmark hides in the Writing bar only (inks, count and Done need the room) | The logo tile stays; every other state shows the wordmark |
 | House hand | `!` and `?` were added in the house style, only for synthetic writing in tests | Some pairs use them |
 | Licence file | `LICENSE` (MIT) added at the root | DECISIONS: MIT |
+| Link previews | `app/opengraph-image.tsx` renders the hero (logo, headline, "handwriting" in the house hand) as a 1200×630 card; `icon.tsx` and `apple-icon.tsx` render the logo tile. All three are prerendered at build. Figtree Bold ships as a static TTF in `src/og/` (OFL) because next/og can't read the variable woff2. `og:image` always points at the production host | A shared link showed a bare title and Safari's compass in iMessage. Preview deployments sit behind Vercel's login, so unfurlers couldn't fetch an image from them |
 
 ## Open
 

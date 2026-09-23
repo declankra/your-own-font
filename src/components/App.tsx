@@ -107,6 +107,7 @@ function Page() {
                 onInk={setInk}
                 onComplete={(i, w) => setWritten((ws) => ws.map((x, k) => (k === i ? w : x)))}
                 onReopen={(i) => setWritten((ws) => ws.map((x, k) => (k === i ? null : x)))}
+                onHome={() => go("hero")}
                 onDone={() => {
                   if (!allWords) return;
                   setRuns((r) => r + 1);
@@ -122,6 +123,7 @@ function Page() {
                 failNext={debug.fail}
                 onPhase={(p) => setPhase(p)}
                 onToast={onToast}
+                onHome={() => go("hero")}
                 onLeaving={() => {
                   leaving.current = true;
                   setTimeout(() => (leaving.current = false), 2000);

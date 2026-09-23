@@ -48,11 +48,18 @@ export function LogoMark({ own }: { own?: InkStroke[] | null }) {
   );
 }
 
-export function Logo({ own }: { own?: InkStroke[] | null }) {
-  return (
-    <span className="logo">
+export function Logo({ own, onHome }: { own?: InkStroke[] | null; onHome?: () => void }) {
+  const inner = (
+    <>
       <LogoMark own={own} />
       <span className="word">{PRODUCT_NAME}</span>
-    </span>
+    </>
+  );
+  // past Hero the logo is the way home
+  if (!onHome) return <span className="logo">{inner}</span>;
+  return (
+    <button type="button" className="logo home" aria-label={`${PRODUCT_NAME}, home`} onClick={onHome}>
+      {inner}
+    </button>
   );
 }

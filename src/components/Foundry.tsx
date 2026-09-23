@@ -38,6 +38,7 @@ export function Foundry({
   onPhase,
   onToast,
   onLeaving,
+  onHome,
 }: {
   words: WordInk[];
   ink: Ink;
@@ -48,6 +49,7 @@ export function Foundry({
   onPhase: (p: "making" | "done") => void;
   onToast: (msg: string) => void;
   onLeaving: () => void;
+  onHome: () => void;
 }) {
   const reduce = useReduced();
   const [phase, setPhase] = useState<"making" | "error" | "done">("making");
@@ -249,7 +251,7 @@ export function Foundry({
   return (
     <>
       <div className="topbar">
-        <Logo own={done ? aGlyph?.strokes : null} />
+        <Logo own={done ? aGlyph?.strokes : null} onHome={onHome} />
         <span />
       </div>
       <div style={{ display: "contents" }}>

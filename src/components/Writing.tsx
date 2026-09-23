@@ -29,6 +29,7 @@ export function Writing({
   onComplete,
   onReopen,
   onDone,
+  onHome,
 }: {
   pair: readonly [string, string];
   written: (WrittenWord | null)[];
@@ -37,6 +38,7 @@ export function Writing({
   onComplete: (index: number, word: WrittenWord) => void;
   onReopen: (index: number) => void;
   onDone: () => void;
+  onHome: () => void;
 }) {
   const reduce = useReduced();
   const sentences = useMemo(() => pair.map((s) => s.split(/\s+/).filter(Boolean)), [pair]);
@@ -306,7 +308,7 @@ export function Writing({
   return (
     <>
       <div className="topbar">
-        <Logo />
+        <Logo onHome={onHome} />
         <div className="wbar">
           <div className="inkmini" role="group" aria-label="Ink">
             {INKS.map((k) => (
