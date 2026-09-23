@@ -25,6 +25,7 @@ while building are in `DECISIONS.md` → *Agent calls while building the app*.
 | `npm run build` | `next build` |
 | `npm run e2e -- <url> [--fail]` | The whole flow in headless Chromium with real mouse input, at phone and desktop widths, reduced motion on and off; downloads and parses the `.otf`. Output in `.e2e/` |
 | `npm run sentences` | Check the sentence pool against the coverage rule |
+| `scripts/signing-cert.sh` | Issue/renew the iOS profile-signing certificate (`font.dkbuilds.co`), set the Vercel env vars, redeploy. Every ~60 days |
 
 `?motion=reduce`, `?pair=N` and `?fail=build` are test hooks (see `DECISIONS.md`).
 `tools/collect` and `tools/bench` are standalone pages; leave them alone.

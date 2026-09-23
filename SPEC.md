@@ -408,8 +408,8 @@ call):** the rewritten letter replaces every sample of that letter, so it has no
 2. **Product name and domain.** "your own font" is still the working name.
 3. **Real-writer data** for the letter model: the owner recruits at least 20 writers to
    use the collection tool (`docs/letter-model.md`).
-4. **iOS signing certificate.** After launch, the owner gets the free Let's Encrypt
-   certificate and sets the env vars (§8.2). Until then, profiles install unsigned.
+4. ~~**iOS signing certificate.**~~ Done 2026-09-22: signed by `font.dkbuilds.co` via
+   `scripts/signing-cert.sh` (see DECISIONS.md → iOS). Renew every ~60 days.
 
 Settled by the owner on 2026-09-22:
 - **No font name.** Nobody is asked for a name. The family is always "My Hand", and each
