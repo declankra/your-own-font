@@ -1,0 +1,1067 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Done → Making</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Figtree:wght@400..800&display=swap" rel="stylesheet" />
+<!--
+  Decision surface: three ways to go from Writing (15/15) to Making.
+  Tokens and product CSS are ported from app/globals.css; the handwriting is the house hand
+  (packages/pipeline/src/house-hand.ts) drawn with perfect-freehand; springs are the three
+  identity springs sampled into CSS linear(). Nothing here is product code.
+-->
+<style>
+:root {
+  color-scheme: light;
+  --paper: #fffefb; --tissue: #f5f3ee; --sheet: #ffffff; --graphite: #1f1e1c; --muted: #6f6a63;
+  --faint: #d3cec6; --rule: #ebe7e0; --guide: #c9d6f7; --ballpoint: #2446f5; --tomato: #ff5b3a;
+  --metal-hi: #77736c; --metal: #4a4743; --metal-lo: #2e2c29; --sh: 31 30 28;
+  --ink: #ff5b3a; --on-ink: #fff;
+  --sans: "Figtree", ui-rounded, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "DM Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --shadow-sheet: 0 0.5px 0 rgb(var(--sh) / 0.05), 0 1px 2px rgb(var(--sh) / 0.05), 0 8px 16px -6px rgb(var(--sh) / 0.08), 0 30px 60px -24px rgb(var(--sh) / 0.16);
+  --ease-nib: cubic-bezier(0.3, 1.35, 0.5, 1); --dur-nib: 360ms;
+  --ease-paper: cubic-bezier(0.3, 1.5, 0.45, 1); --dur-paper: 700ms;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: #efede8; color: var(--graphite); font: 450 16px/1.55 var(--sans); -webkit-font-smoothing: antialiased; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2.5px solid var(--ballpoint); outline-offset: 3px; border-radius: 8px; }
+
+/* ================= review chrome ================= */
+.rv { max-width: 1200px; margin: 0 auto; padding: 40px 24px 96px; }
+.eyebrow { font: 500 12.5px/1.4 var(--mono); color: var(--muted); letter-spacing: 0.02em; }
+.rv h1 { font-weight: 740; letter-spacing: -0.042em; line-height: 1.04; font-size: clamp(32px, 4.6vw, 54px); margin: 10px 0 14px; text-wrap: balance; }
+.lede { color: var(--muted); max-width: 44em; font-size: 17px; margin: 0; text-wrap: pretty; }
+.lede b { color: var(--graphite); font-weight: 600; }
+.bar { display: flex; flex-wrap: wrap; gap: 14px 24px; align-items: center; justify-content: space-between; margin-top: 30px; }
+.tabs { display: flex; gap: 4px; background: #e4e1da; padding: 4px; border-radius: 999px; flex-wrap: wrap; }
+.tab { border: 0; background: none; font-weight: 620; font-size: 15px; letter-spacing: -0.01em; padding: 9px 16px 9px 12px; border-radius: 999px; cursor: pointer; color: var(--muted); display: flex; gap: 9px; align-items: center; transition: background-color .2s, color .2s; }
+.tab .k { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font: 500 12px var(--mono); background: rgb(var(--sh) / .07); }
+.tab[aria-selected="true"] { background: var(--sheet); color: var(--graphite); box-shadow: 0 1px 2px rgb(var(--sh) / .1), 0 4px 10px -6px rgb(var(--sh) / .2); }
+.tab[aria-selected="true"] .k { background: var(--graphite); color: var(--paper); }
+.tab .rec-dot { font: 500 10.5px var(--mono); color: #1c7a45; background: #e2f4e8; padding: 2px 7px; border-radius: 999px; }
+.ctrls { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; }
+.ctrl { display: flex; align-items: center; gap: 8px; }
+.ctrl .lbl { font: 500 11.5px var(--mono); color: var(--muted); }
+.seg { display: inline-flex; background: #e4e1da; border-radius: 999px; padding: 3px; }
+.seg button { border: 0; background: none; font-weight: 580; font-size: 13.5px; padding: 5px 11px; border-radius: 999px; cursor: pointer; color: var(--muted); }
+.seg button[aria-pressed="true"] { background: var(--sheet); color: var(--graphite); box-shadow: 0 1px 2px rgb(var(--sh) / .1); }
+.inks { display: flex; gap: 6px; }
+.inks button { width: 20px; height: 20px; border-radius: 50%; border: 0; padding: 0; background: var(--c); cursor: pointer; }
+.inks button[aria-pressed="true"] { box-shadow: 0 0 0 2px #efede8, 0 0 0 3.5px var(--c); }
+.rv-btn { border: 0; background: var(--graphite); color: var(--paper); font-weight: 620; font-size: 14px; height: 34px; padding: 0 16px; border-radius: 999px; cursor: pointer; display: inline-flex; align-items: center; gap: 7px; }
+.rv-btn svg { width: 15px; height: 15px; }
+.try { margin-top: 22px; display: flex; gap: 12px; align-items: baseline; flex-wrap: wrap; }
+.try .do { font-weight: 680; font-size: 17px; letter-spacing: -0.015em; }
+.try .one { color: var(--muted); }
+.stagewrap { margin-top: 14px; display: flex; justify-content: center; }
+.stage { position: relative; width: 100%; height: 740px; background: var(--paper); border-radius: 16px; overflow: hidden; box-shadow: 0 0 0 1px rgb(var(--sh) / 0.08), 0 30px 60px -34px rgb(var(--sh) / 0.4); container-type: inline-size; container-name: stage; font: 450 17px/1.55 var(--sans); isolation: isolate; }
+.stage.phone { width: 390px; height: 780px; border-radius: 34px; box-shadow: 0 0 0 9px #1f1e1c, 0 0 0 10px #3a3835, 0 40px 70px -30px rgb(var(--sh) / 0.5); margin: 10px 0; }
+.stagecap { text-align: center; margin-top: 12px; font: 500 12px var(--mono); color: var(--muted); }
+
+.rec { margin-top: 40px; background: var(--sheet); border-radius: 14px; padding: clamp(20px, 3vw, 30px); box-shadow: 0 0 0 1px rgb(var(--sh) / .06), 0 14px 30px -22px rgb(var(--sh) / .35); display: grid; gap: 12px; }
+.rec .tag { font: 500 11.5px var(--mono); color: #1c7a45; }
+.rec h2 { margin: 0; font-size: clamp(22px, 2.4vw, 28px); font-weight: 730; letter-spacing: -0.03em; line-height: 1.15; }
+.rec ul { margin: 0; padding-left: 1.2em; display: grid; gap: 8px; max-width: 58em; }
+.rec li { padding-left: 2px; text-wrap: pretty; }
+.rec .revisit { color: var(--muted); font-size: 15px; max-width: 58em; border-top: 1px solid var(--rule); padding-top: 12px; margin: 4px 0 0; }
+.rec .revisit b { color: var(--graphite); font-weight: 620; }
+
+.notes { margin-top: 28px; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; }
+.card-n { background: var(--sheet); border-radius: 14px; padding: 22px 24px; box-shadow: 0 0 0 1px rgb(var(--sh) / .06); }
+.card-n h3 { margin: 0 0 10px; font: 500 11.5px var(--mono); color: var(--muted); letter-spacing: .02em; text-transform: none; }
+.card-n p { margin: 0 0 10px; }
+.card-n ol, .card-n ul { margin: 0; padding-left: 1.15em; display: grid; gap: 8px; }
+.card-n li { text-wrap: pretty; }
+.card-n .t { font: 500 12px var(--mono); color: var(--muted); margin-right: 4px; }
+.card-n code { font: 500 12.5px var(--mono); background: var(--tissue); padding: 1px 5px; border-radius: 4px; }
+.card-n.good h3 { color: #1c7a45; }
+.card-n.cost h3 { color: #b3452d; }
+
+.cmp { margin-top: 40px; }
+.cmp h2 { font-size: 22px; font-weight: 720; letter-spacing: -0.03em; margin: 0 0 14px; }
+.cmpwrap { overflow-x: auto; background: var(--sheet); border-radius: 14px; box-shadow: 0 0 0 1px rgb(var(--sh) / .06); }
+.cmp table { width: 100%; border-collapse: collapse; min-width: 640px; font-size: 15px; }
+.cmp th, .cmp td { text-align: left; padding: 12px 16px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+.cmp tr:last-child td { border-bottom: 0; }
+.cmp thead th { font-weight: 680; font-size: 15px; }
+.cmp thead th .k { font: 500 12px var(--mono); color: var(--muted); margin-right: 6px; }
+.cmp tbody th { font: 500 12px var(--mono); color: var(--muted); font-weight: 500; width: 190px; }
+.cmp td.win { background: #f3faf5; }
+.foot { margin-top: 28px; color: var(--muted); font-size: 14px; max-width: 60em; }
+.foot code { font: 500 12.5px var(--mono); }
+
+/* ================= the product, inside the stage ================= */
+.stage .screen { position: absolute; inset: 0; display: flex; flex-direction: column; padding-inline: clamp(16px, 5cqw, 56px); }
+.stage .inner { position: relative; max-width: 1080px; width: 100%; margin: 0 auto; flex: 1; display: flex; flex-direction: column; }
+.overlay { position: absolute; inset: 0; pointer-events: none; color: var(--ink); z-index: 5; }
+.overlay > svg.linesvg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.flyer { position: absolute; overflow: visible; transform-origin: 0 0; will-change: transform; color: var(--ink); }
+.flyer.up { filter: drop-shadow(0 7px 6px rgb(var(--sh) / .22)); }
+.mono { font: 500 12.5px/1.4 var(--mono); letter-spacing: 0.02em; }
+
+.topbar { position: relative; z-index: 2; background: var(--paper); display: flex; justify-content: space-between; align-items: center; gap: 12px; min-height: 78px; }
+.logo { font-weight: 760; letter-spacing: -0.035em; font-size: 19px; display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+.logo .mark { width: 28px; height: 28px; flex: none; border-radius: 23%; background: #fff; overflow: hidden; box-shadow: 0 0 0 1px rgb(var(--sh) / 0.07), 0 2px 6px -2px rgb(var(--sh) / 0.18); color: var(--ink); }
+.logo .mark svg { width: 100%; height: 100%; display: block; }
+.wbar { display: flex; align-items: center; gap: 12px; }
+.inkmini { display: flex; gap: 6px; }
+.inkmini button { width: 22px; height: 22px; border-radius: 50%; border: 0; padding: 0; background: var(--c); cursor: pointer; }
+.inkmini button[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--paper), 0 0 0 3.5px var(--c); }
+.count { color: var(--muted); min-width: 4.2em; text-align: right; }
+.btn { height: 52px; padding: 0 26px; border-radius: 999px; border: 0; cursor: pointer; font-weight: 620; font-size: 16.5px; letter-spacing: -0.01em; display: inline-flex; align-items: center; justify-content: center; gap: 10px; transition: transform var(--dur-nib) var(--ease-nib), background-color .25s, opacity .25s, color .25s, box-shadow .25s; white-space: nowrap; user-select: none; -webkit-user-select: none; touch-action: manipulation; }
+.btn:active { transform: scale(0.95); }
+.btn.primary { background: var(--ink); color: var(--on-ink); box-shadow: 0 8px 18px -10px var(--ink); }
+.btn.sm { height: 42px; padding: 0 18px; font-size: 15px; }
+.btn.ready { animation: breathe 2.4s ease-in-out infinite; }
+@keyframes breathe { 50% { box-shadow: 0 0 0 7px color-mix(in srgb, var(--ink) 16%, transparent), 0 8px 18px -10px var(--ink); } }
+.btn.holdbtn { position: relative; overflow: hidden; isolation: isolate; --p: 0; }
+.btn.holdbtn:active { transform: scale(0.96); }
+.hfill { position: absolute; inset: 0; background: rgb(255 255 255 / .32); transform-origin: left; transform: scaleX(var(--p)); z-index: -1; pointer-events: none; }
+
+.sentences { display: grid; gap: 4px; margin-top: clamp(16px, 4cqw, 44px); font-size: clamp(20px, 2.7cqw, 32px); font-weight: 600; letter-spacing: -0.02em; line-height: 1.5; max-width: 30em; }
+.sent { display: flex; flex-wrap: wrap; column-gap: 0.28em; align-items: baseline; margin: 0; }
+.w { position: relative; border-radius: 0.12em; }
+.w.written { color: var(--ink); transition: color 1.4s ease; }
+.spent .w.written { color: var(--faint); }
+.w svg { display: inline-block; overflow: visible; }
+.prompt-row { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; margin-top: clamp(28px, 6cqw, 72px); }
+.prompt-row.ghost { visibility: hidden; }
+.prompt { display: flex; font-size: clamp(48px, 7.4cqw, 84px); min-height: 1.1em; line-height: 1.1; align-items: flex-end; }
+.pline { display: inline-block; width: 4.4em; height: 0.075em; border-radius: 1em; background: var(--faint); position: relative; margin-bottom: 0.2em; overflow: hidden; --f: 0; }
+.pline::after { content: ""; position: absolute; inset: 0; background: var(--ink); transform-origin: left; transform: scaleX(var(--f)); transition: transform 120ms linear; }
+.pad { position: relative; height: 290px; margin-top: 10px; overflow: visible; user-select: none; -webkit-user-select: none; }
+.pad > svg.guides { position: absolute; inset: 0; width: 100%; height: 100%; display: block; -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); }
+.guide { stroke: var(--guide); stroke-width: 1.25; fill: none; }
+.guide.asc { opacity: .4; }
+.guide.dash { stroke-dasharray: 5 6; }
+.alldone { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 14px; text-align: center; pointer-events: none; }
+.alldone b { font-size: clamp(26px, 3.4cqw, 38px); font-weight: 720; letter-spacing: -0.03em; line-height: 1.1; }
+.alldone span { color: var(--muted); transition: color .2s; }
+.alldone span.nudge { color: var(--graphite); animation: nudge 420ms var(--ease-nib); }
+@keyframes nudge { 25% { transform: translateX(-4px); } 60% { transform: translateX(3px); } }
+.pad-hint { position: absolute; left: 0; bottom: 6px; color: var(--muted); font-size: 14.5px; pointer-events: none; }
+.pad-top { position: absolute; left: 0; top: 2px; color: var(--graphite); font-size: 15px; font-weight: 600; pointer-events: none; }
+.drawcap { position: absolute; inset: 0; touch-action: none; cursor: crosshair; }
+.ghostline { position: absolute; pointer-events: none; }
+.ghostdot { position: absolute; width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px; border-radius: 50%; background: var(--ink); opacity: 0; animation: ghost 2.8s var(--ease-nib) infinite; }
+@keyframes ghost { 0% { opacity: 0; transform: translateX(0); } 12% { opacity: .55; transform: translateX(0); } 62% { opacity: .55; transform: translateX(var(--len)); } 78%, 100% { opacity: 0; transform: translateX(var(--len)); } }
+.wfoot { color: var(--muted); font-size: 14.5px; margin: 18px 0 0; }
+
+/* B: the page on a pad */
+.bpage { position: relative; margin-top: clamp(16px, 4cqw, 44px); width: fit-content; max-width: 100%; }
+.bpage .sentences { margin-top: 0; }
+.bsheet { position: relative; margin: 0 -22px; padding: 18px 40px 16px 22px; border-radius: 2px 2px 6px 6px; transform-origin: 50% 0; isolation: isolate; --p: 0; }
+.bsheet::after { content: ""; position: absolute; inset: 0; z-index: -1; background: var(--sheet); border-radius: inherit; box-shadow: var(--shadow-sheet), 0 calc(var(--p) * 26px) calc(var(--p) * 40px) -16px rgb(var(--sh) / calc(var(--p) * .42)); opacity: 0; transition: opacity .5s; }
+.bsheet::before { content: ""; position: absolute; left: 6px; right: 6px; top: 1px; height: 3px; background: radial-gradient(circle at 1.5px 1.5px, #cfc9bf 1.1px, transparent 1.45px) 0 0 / 7px 3px repeat-x; opacity: 0; transition: opacity .5s .15s; }
+.bsheet.on::after, .bsheet.on::before { opacity: 1; }
+.bsheet.torn::before { opacity: 0 !important; transition: none; }
+.binding { position: absolute; left: -24px; right: -24px; top: -13px; height: 13px; background: linear-gradient(#e6e2da, #dcd7ce); border-radius: 5px 5px 1px 1px; box-shadow: inset 0 1px 0 rgb(255 255 255 / .5), 0 1px 0 rgb(var(--sh) / .06); opacity: 0; transform: scaleY(.2); transform-origin: bottom; transition: opacity .4s, transform var(--dur-nib) var(--ease-nib); z-index: 1; }
+.bpage.on .binding { opacity: 1; transform: none; }
+.stub { position: absolute; left: 2px; right: 2px; top: 100%; height: 6px; background: var(--sheet); opacity: 0; }
+.binding.ripped .stub { opacity: 1; }
+.copyslot { flex: none; }
+.phead-row { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; }
+.bclip { position: absolute; width: 38px; height: 26px; margin-left: -19px; margin-top: -14px; }
+
+/* making */
+.phead { display: grid; gap: 10px; margin-top: clamp(20px, 5cqw, 56px); }
+.phead h2 { margin: 0; font-weight: 740; letter-spacing: -0.04em; line-height: 1.05; font-size: clamp(34px, 4.8cqw, 60px); }
+.phead .mono { color: var(--muted); min-height: 1.4em; margin: 0; }
+.sheetwrap { position: relative; margin-top: clamp(28px, 5cqw, 56px); padding: clamp(18px, 4cqw, 44px); }
+.press-area { position: relative; display: flex; justify-content: center; }
+.abc { --tile: 60px; --gap: 12px; display: grid; grid-template-columns: repeat(13, var(--tile)); gap: var(--gap); transition: gap var(--dur-paper) var(--ease-paper); position: relative; }
+.abc.set { --gap: 4px; }
+.slot { width: var(--tile); height: var(--tile); perspective: 500px; transform-origin: 50% 100%; }
+.card { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform var(--dur-paper) var(--ease-paper); }
+.card.cast { transform: rotateY(180deg); }
+.face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 8px; display: grid; place-items: center; overflow: hidden; }
+.front .ph { font: 600 calc(var(--tile) * 0.42) / 1 var(--sans); color: var(--faint); transition: opacity .3s; }
+.lifted .front .ph { opacity: 0; }
+.front svg, .back svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.front svg { color: var(--ink); }
+.back { transform: rotateY(180deg); background: linear-gradient(160deg, var(--metal-hi), var(--metal) 55%, var(--metal-lo)); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.18), inset 0 -2px 0 rgb(0 0 0 / 0.25); color: #b9b4ac; }
+.back svg { transform: scaleX(-1); }
+.endcap { position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%); pointer-events: auto; display: flex; align-items: center; gap: 12px; background: var(--graphite); color: var(--paper); padding: 8px 8px 8px 16px; border-radius: 999px; font-size: 13.5px; font-weight: 560; white-space: nowrap; box-shadow: 0 12px 28px -12px rgb(var(--sh) / .6); }
+.endcap .rv-btn { background: var(--paper); color: var(--graphite); height: 30px; font-size: 13px; }
+
+@container stage (max-width: 1000px) {
+  .abc { grid-template-columns: repeat(9, var(--tile)); --tile: 54px; }
+}
+@container stage (max-width: 600px) {
+  .topbar { min-height: 64px; }
+  .logo { font-size: 17px; }
+  .wbar { gap: 10px; }
+  .count { min-width: 3.4em; }
+  .wbar .btn.sm { padding: 0 14px; }
+  .pad { height: 240px; }
+  .abc { grid-template-columns: repeat(7, var(--tile)); --tile: min(42px, calc((100cqw - 96px) / 7)); --gap: 6px; }
+  .abc.set { --gap: 3px; }
+  .phead-row { flex-direction: column; align-items: flex-start; gap: 16px; }
+  .bsheet { margin: 0 -10px; padding: 14px 18px 12px 10px; }
+  .binding { left: -12px; right: -12px; }
+  .endcap { font-size: 12.5px; }
+  .endcap span { white-space: normal; max-width: 200px; }
+}
+@container stage (max-width: 400px) { .topbar:has(.wbar) .logo .word { display: none; } }
+@media (max-width: 720px) {
+  .rv { padding: 28px 16px 72px; }
+  .stage { height: 700px; }
+  .stage.phone { width: min(390px, 100%); }
+}
+</style>
+</head>
+<body>
+<main class="rv">
+  <div class="eyebrow">your own font · design decision · 2026-09-22</div>
+  <h1>Done → Making, three ways</h1>
+  <p class="lede">Tapping <b>Done</b> is the one step people can't take back in place: the sentences go and the font gets made. Today the page fades out and the letters turn up in empty slots. Here are three ways to make that step feel like one. Each one runs on your pair, <b>“save me a cozy spot, i’ll bring the quilt. / we’ll fix hot drinks and jokes.”</b>, written in the house hand with the real pen and springs. Play each one on the stage below.</p>
+
+  <div class="bar">
+    <div class="tabs" role="tablist" aria-label="Variants" id="tabs"></div>
+    <div class="ctrls">
+      <div class="ctrl"><span class="lbl">view</span><div class="seg" id="seg-view"></div></div>
+      <div class="ctrl"><span class="lbl">hand</span><div class="seg" id="seg-hand"></div></div>
+      <div class="ctrl"><span class="lbl">speed</span><div class="seg" id="seg-speed"></div></div>
+      <div class="ctrl"><span class="lbl">ink</span><div class="inks" id="inks"></div></div>
+      <button class="rv-btn" id="replay"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>Replay</button>
+    </div>
+  </div>
+
+  <div class="try"><span class="do" id="try-do"></span><span class="one" id="try-one"></span></div>
+  <div class="stagewrap"><div class="stage" id="stage" aria-label="Prototype stage"></div></div>
+  <div class="stagecap" id="stagecap"></div>
+
+  <section class="notes" id="notes"></section>
+
+  <section class="rec" id="rec"></section>
+
+  <section class="cmp">
+    <h2>Side by side</h2>
+    <div class="cmpwrap"><table id="cmp"></table></div>
+  </section>
+
+  <p class="foot">Mock notes: the letters are the house hand (the same synthetic writer the e2e run uses) with wobble added, so they're real strokes drawn with <code>perfect-freehand</code>, not a script font. The mock lifts the first sample of each letter; the build would lift the sample the letter model picked. Casting runs at the built pace (125 ms a letter), and the stage stops at “setting the row”: ink, press, note and Done are unchanged in all three. Press <code>R</code> to replay.</p>
+</main>
+
+<script type="module">
+// ---------------------------------------------------------------- pen
+let getStroke = null;
+try {
+  const m = await Promise.race([import("https://cdn.jsdelivr.net/npm/perfect-freehand@1.2.2/+esm"), new Promise((_, j) => setTimeout(() => j(0), 2500))]);
+  getStroke = m.getStroke || m.default;
+} catch {}
+
+// ---------------------------------------------------------------- house hand (packages/pipeline/src/house-hand.ts)
+const HOUSE = {
+  a: { w: 48, s: ["M 38 58 C 32 49, 16 50, 10 64 C 4 80, 10 99, 24 99 C 34 99, 40 88, 41 74", "M 41 52 C 41 68, 41 84, 44 100"] },
+  b: { w: 44, s: ["M 10 14 C 10 44, 10 74, 10 100", "M 10 70 C 14 56, 26 50, 34 53 C 44 58, 44 88, 34 97 C 26 103, 14 100, 10 92"] },
+  c: { w: 40, s: ["M 37 58 C 30 49, 14 50, 9 64 C 4 80, 12 100, 26 99 C 32 99, 36 96, 39 92"] },
+  d: { w: 48, s: ["M 38 58 C 32 49, 16 50, 10 64 C 4 80, 10 99, 24 99 C 34 99, 40 88, 41 74", "M 40 14 C 40 44, 41 74, 43 100"] },
+  e: { w: 44, s: ["M 8 76 C 20 76, 34 73, 40 65 C 44 57, 36 50, 26 51 C 12 52, 6 66, 7 80 C 8 96, 26 104, 40 93"] },
+  f: { w: 36, s: ["M 36 24 C 32 15, 22 13, 18 22 C 15 30, 15 50, 15 70 C 15 82, 15 92, 15 100", "M 4 52 C 12 51, 22 50, 32 49"] },
+  g: { w: 48, s: ["M 38 58 C 32 49, 16 50, 10 64 C 5 79, 11 95, 24 95 C 34 95, 40 85, 41 72", "M 41 52 C 41 76, 42 104, 39 120 C 36 136, 16 140, 7 128"] },
+  h: { w: 44, s: ["M 9 14 C 9 44, 9 74, 10 100", "M 10 72 C 14 58, 22 51, 30 52 C 40 53, 42 62, 42 74 C 42 84, 42 92, 43 100"] },
+  i: { w: 20, s: ["M 10 54 C 10 70, 10 86, 11 100", "M 10 33 L 11 34"] },
+  j: { w: 26, s: ["M 18 54 C 18 76, 19 104, 16 120 C 13 136, 2 138, -2 128", "M 18 33 L 19 34"] },
+  k: { w: 44, s: ["M 10 14 C 10 44, 10 74, 11 100", "M 38 52 C 30 60, 20 68, 11 76 C 22 82, 32 90, 42 100"] },
+  l: { w: 22, s: ["M 10 14 C 10 44, 9 72, 11 90 C 12 98, 16 101, 21 99"] },
+  m: { w: 66, s: ["M 8 50 C 8 66, 8 84, 8 100 C 8 82, 11 58, 21 52 C 31 48, 34 58, 34 70 C 34 82, 34 92, 34 100 C 34 80, 38 56, 48 52 C 58 49, 61 58, 61 70 C 61 82, 61 92, 62 100"] },
+  n: { w: 46, s: ["M 8 50 C 8 66, 8 84, 8 100 C 8 82, 12 58, 26 52 C 38 48, 43 58, 43 70 C 43 82, 43 92, 44 100"] },
+  o: { w: 46, s: ["M 34 54 C 26 47, 12 52, 8 66 C 4 82, 12 100, 26 99 C 40 98, 45 84, 43 70 C 41 58, 34 51, 26 51"] },
+  p: { w: 46, s: ["M 9 52 C 9 80, 9 110, 10 138", "M 9 66 C 14 54, 26 49, 34 52 C 44 57, 44 88, 33 96 C 24 102, 13 98, 9 90"] },
+  q: { w: 50, s: ["M 38 58 C 32 49, 16 50, 10 64 C 4 80, 10 99, 24 99 C 34 99, 40 88, 41 74", "M 41 52 C 41 80, 41 110, 43 136 C 44 140, 48 139, 50 136"] },
+  r: { w: 34, s: ["M 9 50 C 9 66, 9 84, 9 100", "M 9 72 C 12 58, 20 50, 32 53"] },
+  s: { w: 40, s: ["M 36 58 C 30 49, 12 49, 11 60 C 10 72, 36 72, 38 86 C 40 100, 16 104, 5 94"] },
+  t: { w: 34, s: ["M 16 26 C 16 48, 15 72, 17 88 C 18 99, 28 102, 34 95", "M 4 51 C 12 50, 22 50, 32 49"] },
+  u: { w: 46, s: ["M 8 52 C 8 66, 8 80, 12 90 C 16 100, 32 102, 38 90 C 41 82, 42 66, 42 52 C 42 70, 42 86, 44 100"] },
+  v: { w: 42, s: ["M 5 51 C 10 68, 16 84, 21 100 C 27 84, 33 68, 39 51"] },
+  w: { w: 62, s: ["M 4 51 C 8 68, 12 84, 16 100 C 21 86, 26 72, 31 62 C 35 74, 40 88, 45 100 C 49 84, 54 68, 58 51"] },
+  x: { w: 42, s: ["M 6 52 C 16 66, 26 84, 38 100", "M 37 51 C 27 66, 17 84, 5 100"] },
+  y: { w: 46, s: ["M 6 52 C 9 68, 16 86, 29 98", "M 42 52 C 36 76, 30 100, 22 120 C 16 134, 8 136, 3 128"] },
+  z: { w: 40, s: ["M 6 52 C 16 52, 26 51, 36 51 C 26 66, 16 84, 5 100 C 16 99, 26 99, 38 99"] },
+  "'": { w: 12, s: ["M 7 16 C 7 22, 6 28, 4 33"] },
+  ",": { w: 12, s: ["M 6 96 C 7 100, 6 106, 2 111"] },
+  ".": { w: 12, s: ["M 5 99 L 6 100"] },
+};
+const PAIR = ["save me a cozy spot, i'll bring the quilt.", "we'll fix hot drinks and jokes."];
+const ABC = "abcdefghijklmnopqrstuvwxyz";
+const INKS = [
+  { id: "ballpoint", name: "Ballpoint", hex: "#2446F5" },
+  { id: "graphite", name: "Graphite", hex: "#1F1E1C" },
+  { id: "tomato", name: "Tomato", hex: "#FF5B3A" },
+];
+
+function cubic(p0, c1, c2, e, t) {
+  const u = 1 - t;
+  return [u * u * u * p0[0] + 3 * u * u * t * c1[0] + 3 * u * t * t * c2[0] + t * t * t * e[0], u * u * u * p0[1] + 3 * u * u * t * c1[1] + 3 * u * t * t * c2[1] + t * t * t * e[1]];
+}
+function samplePath(d, step = 2) {
+  const tok = d.replace(/,/g, " ").trim().split(/\s+/);
+  const dense = [];
+  let cur = [0, 0], cmd = "";
+  for (let i = 0; i < tok.length; ) {
+    if (/^[MLC]$/i.test(tok[i])) cmd = tok[i++].toUpperCase();
+    if (cmd === "M") { cur = [+tok[i], +tok[i + 1]]; i += 2; dense.push(cur); cmd = "L"; }
+    else if (cmd === "L") { const e = [+tok[i], +tok[i + 1]]; i += 2; for (let k = 1; k <= 8; k++) dense.push([cur[0] + ((e[0] - cur[0]) * k) / 8, cur[1] + ((e[1] - cur[1]) * k) / 8]); cur = e; }
+    else if (cmd === "C") { const c1 = [+tok[i], +tok[i + 1]], c2 = [+tok[i + 2], +tok[i + 3]], e = [+tok[i + 4], +tok[i + 5]]; i += 6; for (let k = 1; k <= 48; k++) dense.push(cubic(cur, c1, c2, e, k / 48)); cur = e; }
+    else i++;
+  }
+  const cum = [0];
+  for (let k = 1; k < dense.length; k++) cum.push(cum[k - 1] + Math.hypot(dense[k][0] - dense[k - 1][0], dense[k][1] - dense[k - 1][1]));
+  const L = cum[cum.length - 1], n = Math.max(2, Math.ceil(L / step)), out = [];
+  let j = 0;
+  for (let k = 0; k <= n; k++) {
+    const s = (L * k) / n;
+    while (j < cum.length - 2 && cum[j + 1] < s) j++;
+    const seg = cum[j + 1] - cum[j] || 1, t = Math.min(1, Math.max(0, (s - cum[j]) / seg));
+    const nx = dense[j + 1 < dense.length ? j + 1 : j];
+    out.push([dense[j][0] + (nx[0] - dense[j][0]) * t, dense[j][1] + (nx[1] - dense[j][1]) * t]);
+  }
+  return out;
+}
+const housePressure = (t) => 0.38 + 0.26 * Math.sin(Math.PI * Math.min(1, t * 1.15 + 0.04));
+function rng(seed) { let s = seed >>> 0 || 1; return () => { s ^= s << 13; s ^= s >>> 17; s ^= s << 5; return ((s >>> 0) % 100000) / 100000; }; }
+
+/** Write a word the way a person might (house-hand.ts synthWord), keeping each letter's strokes. */
+function synthWord(word, { jitter = 0.35, seed = 7, gap = 6 } = {}) {
+  const r = rng(seed), j = jitter, letters = [];
+  let x = 4;
+  const drift = (r() - 0.5) * 5 * j;
+  for (const ch of word) {
+    const g = HOUSE[ch];
+    const slant = (r() - 0.5) * 0.14 * j, sy = 1 + (r() - 0.5) * 0.16 * j, sx = 1 + (r() - 0.5) * 0.12 * j, dy = (r() - 0.5) * 6 * j + drift;
+    const strokes = g.s.map((d) => {
+      const pts = samplePath(d, 2), n = pts.length - 1 || 1;
+      return pts.map(([px, py], k) => {
+        const yy = 100 + (py - 100) * sy + dy;
+        return [x + px * sx + (100 - yy) * slant + (r() - 0.5) * 0.7 * j, yy + (r() - 0.5) * 0.7 * j, housePressure(k / n)];
+      });
+    });
+    letters.push({ ch, strokes });
+    x += g.w * sx + gap + (r() - 0.5) * 5 * j;
+  }
+  return { letters, width: x - gap };
+}
+
+// ---------------------------------------------------------------- dom helpers
+const SVGNS = "http://www.w3.org/2000/svg";
+function h(tag, attrs = {}, ...kids) {
+  const el = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (v == null) continue;
+    if (k === "class") el.className = v;
+    else if (k === "style") el.style.cssText = v;
+    else if (k.startsWith("on")) el.addEventListener(k.slice(2), v);
+    else el.setAttribute(k, v);
+  }
+  for (const c of kids.flat()) if (c != null) el.append(c);
+  return el;
+}
+function sv(tag, attrs = {}) {
+  const el = document.createElementNS(SVGNS, tag);
+  for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+  return el;
+}
+function toPath(pts) {
+  if (!pts.length) return "";
+  const d = pts.reduce((a, [x0, y0], i, arr) => { const [x1, y1] = arr[(i + 1) % arr.length]; a.push(x0.toFixed(2), y0.toFixed(2), ((x0 + x1) / 2).toFixed(2), ((y0 + y1) / 2).toFixed(2)); return a; }, ["M", pts[0][0].toFixed(2), pts[0][1].toFixed(2), "Q"]);
+  d.push("Z");
+  return d.join(" ");
+}
+/** One stroke as an SVG path: the felt-tip pen (SPEC §5.2) or, offline, a round-capped line. */
+function inkPath(points, size, { pressure = true, last = true } = {}) {
+  const el = sv("path");
+  paintInk(el, points, size, { pressure, last });
+  return el;
+}
+function paintInk(el, points, size, { pressure = true, last = true } = {}) {
+  if (getStroke) {
+    el.setAttribute("d", toPath(getStroke(points, { size, thinning: 0.6, smoothing: 0.5, streamline: 0.45, simulatePressure: !pressure, last })));
+    el.setAttribute("fill", "currentColor");
+  } else {
+    const p = points.length === 1 ? [points[0], [points[0][0] + 0.1, points[0][1]]] : points;
+    el.setAttribute("d", "M" + p.map((q) => q[0].toFixed(1) + " " + q[1].toFixed(1)).join(" L"));
+    el.setAttribute("fill", "none");
+    el.setAttribute("stroke", "currentColor");
+    el.setAttribute("stroke-width", size * 0.72);
+    el.setAttribute("stroke-linecap", "round");
+    el.setAttribute("stroke-linejoin", "round");
+  }
+}
+function bounds(strokes) {
+  let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+  for (const s of strokes) for (const [x, y] of s) { x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); }
+  return { x0, x1, y0, y1 };
+}
+const lerp = (a, b, t) => a + (b - a) * t;
+
+// ---------------------------------------------------------------- springs (src/lib/springs.ts)
+const SPR = { nib: { k: 520, c: 32, m: 1 }, paper: { k: 140, c: 14, m: 1 }, press: { k: 260, c: 30, m: 3 } };
+function springCurve(k, c, m) {
+  let x = 0, v = 0, settle = 0;
+  const out = [0];
+  for (let t = 1; t < 4000; t++) {
+    const a = (-k * (x - 1) - c * v) / m;
+    v += a / 1000; x += v / 1000;
+    if (t % 14 === 0) out.push(+x.toFixed(4));
+    if (Math.abs(x - 1) < 0.001 && Math.abs(v) < 0.02) { settle = t; break; }
+  }
+  out.push(1);
+  return { easing: `linear(${out.join(",")})`, ms: settle || 4000 };
+}
+const LIN = CSS.supports("transition-timing-function", "linear(0, 1)");
+const EASE = {};
+for (const [n, s] of Object.entries(SPR)) {
+  const r = springCurve(s.k, s.c, s.m);
+  EASE[n] = { easing: LIN ? r.easing : "cubic-bezier(.3,1.35,.5,1)", ms: r.ms };
+}
+
+// ---------------------------------------------------------------- run control
+const S = { v: "A", view: "desktop", hand: "neat", ink: INKS[2], speed: 1 };
+let RUN = 0;
+class Cancel extends Error {}
+const alive = (run) => { if (run !== RUN) throw new Cancel(); };
+const wait = (ms, run) => new Promise((r) => setTimeout(r, ms / S.speed)).then(() => alive(run));
+function applySpeed() {
+  const st = document.documentElement.style;
+  for (const n of ["nib", "paper", "press"]) { st.setProperty(`--ease-${n}`, EASE[n].easing); st.setProperty(`--dur-${n}`, `${Math.round(EASE[n].ms / S.speed)}ms`); }
+}
+/** WAAPI on a spring (sampled into linear()) or a plain duration; honours the speed control. */
+function anim(el, frames, kind, o = {}) {
+  const e = kind ? EASE[kind] : { easing: o.easing || "ease", ms: o.duration || 300 };
+  const a = el.animate(frames, { duration: o.duration ?? e.ms, easing: o.easing ?? e.easing, delay: o.delay || 0, fill: "both" });
+  a.playbackRate = S.speed;
+  return a.finished.then(() => a, () => a);
+}
+/** A spring on one number, integrated per frame (for things WAAPI can't tween: paths, holds). */
+function springValue(from, to, sp, onUpdate, run) {
+  return new Promise((res) => {
+    let x = from, v = 0, last = performance.now();
+    const step = (t) => {
+      if (run !== RUN) return res();
+      const dt = Math.min(64, t - last) * S.speed; last = t;
+      for (let i = 0; i < Math.ceil(dt); i++) { const a = (-sp.k * (x - to) - sp.c * v) / sp.m; v += a / 1000; x += v / 1000; }
+      if (onUpdate(x) === false) return res();
+      if (Math.abs(x - to) < 0.0008 && Math.abs(v) < 0.01) { onUpdate(to); return res(); }
+      requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  });
+}
+
+// ---------------------------------------------------------------- the product: Writing at 15/15
+const stage = document.getElementById("stage");
+const sRect = () => stage.getBoundingClientRect();
+
+function logoEl() {
+  // src/components/Logo.tsx: house "a" on a 124-unit ruled tile
+  const cx = (HOUSE.a.w + 8) / 2;
+  const mark = sv("svg", { viewBox: `${cx - 62} 16 124 124` });
+  mark.innerHTML = `<line x1="${cx - 62}" x2="${cx + 62}" y1="100" y2="100" stroke="#C9D6F7" stroke-width="3"/><line x1="${cx - 62}" x2="${cx + 62}" y1="50" y2="50" stroke="#C9D6F7" stroke-width="3" stroke-dasharray="7 8"/>`;
+  const g = sv("g");
+  synthWord("a", { jitter: 0 }).letters[0].strokes.forEach((s) => g.append(inkPath(s, 12)));
+  mark.append(g);
+  return h("div", { class: "logo" }, h("span", { class: "mark" }, mark), h("span", { class: "word" }, "your own font"));
+}
+
+function wordSvg(data) {
+  const PADX = 8, w = data.width + 2 * PADX;
+  const svg = sv("svg", { viewBox: `${-PADX} 0 ${w} 145`, "aria-hidden": "true" });
+  svg.style.width = `${w / 50}ex`;
+  svg.style.height = `${145 / 50}ex`;
+  svg.style.verticalAlign = `${-45 / 50}ex`;
+  for (const L of data.letters) {
+    const g = sv("g");
+    L.strokes.forEach((s) => g.append(inkPath(s, 8)));
+    svg.append(g);
+    L.g = g;
+  }
+  return svg;
+}
+
+function layoutGuides(pad) {
+  const H = pad.el.clientHeight, Wd = pad.el.clientWidth;
+  const xh = Math.max(44, Math.min(72, H * 0.24)), base = Math.round(H * 0.64);
+  Object.assign(pad, { xh, base, W: Wd, H });
+  pad.guides.setAttribute("viewBox", `0 0 ${Wd} ${H}`);
+  const ys = [[base - 2 * xh, "asc"], [base - xh, "dash"], [base, ""], [base + 0.9 * xh, "asc"]];
+  pad.guides.innerHTML = ys.map(([y, c]) => `<line class="guide ${c}" x1="0" x2="${Wd}" y1="${y}" y2="${y}"/>`).join("");
+}
+
+function buildWriting() {
+  const inner = h("div", { class: "inner" });
+  const overlay = h("div", { class: "overlay" });
+  stage.append(h("div", { class: "screen" }, inner), overlay);
+
+  const doneBtn = h("button", { class: "btn primary sm ready" }, "Done");
+  const inkmini = h("div", { class: "inkmini", role: "group", "aria-label": "Ink" },
+    INKS.map((k) => h("button", { style: `--c:${k.hex}`, "aria-label": k.name, "aria-pressed": String(k.id === S.ink.id), onclick: () => setInk(k) })));
+  const wbar = h("div", { class: "wbar" }, inkmini, h("span", { class: "count mono" }, "15 / 15"), doneBtn);
+  const topbar = h("div", { class: "topbar" }, logoEl(), wbar);
+
+  const hand = S.hand === "messy" ? { jitter: 1.35, gap: 2 } : { jitter: 0.4, gap: 6 };
+  const letterOf = new Map();
+  const sentences = h("div", { class: "sentences", "aria-label": "Your two sentences" });
+  let wi = 0;
+  for (const sent of PAIR) {
+    const p = h("p", { class: "sent" });
+    for (const word of sent.split(" ")) {
+      const data = synthWord(word, { ...hand, seed: 11 + wi * 17 + (S.hand === "messy" ? 101 : 0) });
+      p.append(h("span", { class: "w written" }, wordSvg(data)));
+      for (const L of data.letters) if (ABC.includes(L.ch) && !letterOf.has(L.ch)) letterOf.set(L.ch, L);
+      wi++;
+    }
+    sentences.append(p);
+  }
+  const promptRow = h("div", { class: "prompt-row ghost" }, h("div", { class: "prompt" }, " "));
+  const guides = sv("svg", { class: "guides", preserveAspectRatio: "none" });
+  const text = h("div", { class: "alldone" }, h("b", {}, "That’s both sentences."), h("span", {}, "Tap Done and we’ll make your font."));
+  const padEl = h("div", { class: "pad" }, guides, text);
+  const pad = { el: padEl, guides, text };
+  const wfoot = h("p", { class: "wfoot" }, "Tap a letter above to redo it. Tap a finished word to rewrite it.");
+  const wbody = h("div", { class: "wbody" }, sentences, promptRow, padEl, wfoot);
+  inner.append(topbar, wbody);
+  layoutGuides(pad);
+  return { inner, overlay, topbar, wbar, doneBtn, sentences, promptRow, pad, wfoot, wbody, letterOf };
+}
+
+// ---------------------------------------------------------------- the product: Making
+function slotGlyph(L) {
+  const b = bounds(L.strokes), cx = (b.x0 + b.x1) / 2, V = 50 / 0.3;
+  const svg = sv("svg", { viewBox: `${cx - V / 2} ${100 - 0.66 * V} ${V} ${V}`, "aria-hidden": "true" });
+  const g = sv("g");
+  L.strokes.forEach((s) => g.append(inkPath(s, 8)));
+  svg.append(g);
+  return { svg, g };
+}
+function buildMaking(W, { copy = false } = {}) {
+  const caption = h("p", { class: "mono" }, "casting letters");
+  const phead = h("div", { class: "phead" }, h("h2", {}, "Making your font"), caption);
+  let head = phead, copySlot = null;
+  if (copy) { copySlot = h("div", { class: "copyslot" }); head = h("div", { class: "phead-row" }, phead, copySlot); }
+  const grid = h("div", { class: "abc" });
+  const slots = [...ABC].map((ch) => {
+    const L = W.letterOf.get(ch);
+    const f = slotGlyph(L), b = slotGlyph(L);
+    f.g.style.opacity = 0;
+    const card = h("div", { class: "card" }, h("div", { class: "face front" }, h("span", { class: "ph" }, ch), f.svg), h("div", { class: "face back" }, b.svg));
+    const slot = h("div", { class: "slot" }, card);
+    grid.append(slot);
+    return { ch, slot, card, frontG: f.g, frontSvg: f.svg };
+  });
+  const sheetwrap = h("div", { class: "sheetwrap" }, h("div", { class: "press-area" }, grid));
+  const root = h("div", { class: "making" }, head, sheetwrap);
+  return { root, head, phead, caption, grid, slots, sheetwrap, copySlot };
+}
+
+/** FLIP one letter from where it sits to its slot: it lifts in full ink, flies, lands, turns to type. */
+async function fly(W, L, slot, run) {
+  const st = sRect(), sr = L.g.getBoundingClientRect(), dr = slot.frontG.getBoundingClientRect(), bb = L.g.getBBox();
+  const clone = sv("svg", { viewBox: `${bb.x} ${bb.y} ${bb.width} ${bb.height}`, class: "flyer" });
+  clone.style.cssText = `left:${sr.left - st.left}px;top:${sr.top - st.top}px;width:${sr.width}px;height:${sr.height}px`;
+  const g = L.g.cloneNode(true);
+  g.style.opacity = 1;
+  clone.append(g);
+  W.overlay.append(clone);
+  L.g.style.opacity = 0;
+  const K = 1.16, w = sr.width, hh = sr.height;
+  const up = `translate(${(-(K - 1) * w) / 2}px, ${(-(K - 1) * hh) / 2 - 6}px) scale(${K})`;
+  clone.classList.add("up");
+  await anim(clone, [{ transform: "translate(0px, 0px) scale(1)" }, { transform: up }], "nib");
+  alive(run);
+  await anim(clone, [{ transform: up }, { transform: `translate(${dr.left - sr.left}px, ${dr.top - sr.top}px) scale(${dr.width / w})` }], "paper");
+  alive(run);
+  slot.frontG.style.opacity = 1;
+  slot.slot.classList.add("lifted");
+  clone.remove();
+  wait(200, run).then(() => slot.card.classList.add("cast"), () => {});
+}
+
+async function castAll(W, M, run, sourceFor) {
+  let n = 0;
+  const flights = [];
+  for (let i = 0; i < 26; i++) {
+    const slot = M.slots[i];
+    flights.push(fly(W, sourceFor(slot.ch), slot, run).then(() => (M.caption.textContent = `casting letters · ${++n}/26`)));
+    await wait(125, run);
+  }
+  await Promise.all(flights);
+}
+
+async function setRow(W, M, run) {
+  await wait(320, run);
+  M.caption.textContent = "setting the row";
+  M.grid.classList.add("set");
+  await wait(900, run);
+  const el = h("div", { class: "endcap" }, h("span", {}, "Making carries on as built: ink, press, Done."), h("button", { class: "rv-btn", onclick: mount }, "Replay"));
+  W.overlay.append(el);
+  anim(el, [{ opacity: 0, transform: "translate(-50%, 10px)" }, { opacity: 1, transform: "translate(-50%, 0)" }], "nib");
+}
+
+const fadeOut = (el, dy = 10) => anim(el, [{ opacity: 1, transform: "none" }, { opacity: 0, transform: `translateY(${dy}px)` }], null, { duration: 280, easing: "ease" });
+const riseIn = (el, delay = 0) => anim(el, [{ opacity: 0, transform: "translateY(20px)" }, { opacity: 1, transform: "none" }], "paper", { delay });
+
+// ================================================================ A: lift off the page
+const A = {
+  setup(run, W) {
+    W.doneBtn.addEventListener("click", () => A.go(run, W).catch(ignore), { once: true });
+  },
+  async go(run, W) {
+    W.doneBtn.classList.remove("ready");
+    anim(W.wbar, [{ opacity: 1 }, { opacity: 0 }], null, { duration: 240 });
+    [W.promptRow, W.pad.el, W.wfoot].forEach((el) => fadeOut(el));
+    await wait(300, run);
+    W.promptRow.remove(); W.pad.el.remove(); W.wfoot.remove();
+    const M = buildMaking(W);
+    W.inner.append(M.root);
+    riseIn(M.phead);
+    riseIn(M.sheetwrap, 60);
+    W.sentences.classList.add("spent");
+    await wait(420, run);
+    await castAll(W, M, run, (ch) => W.letterOf.get(ch));
+    await wait(250, run);
+    // what's left of the page folds away and the row takes its place
+    const hgt = W.sentences.offsetHeight, mt = getComputedStyle(W.sentences).marginTop;
+    anim(W.sentences, [{ opacity: 1, height: `${hgt}px`, marginTop: mt }, { opacity: 0, height: "0px", marginTop: "0px" }], "paper");
+    await setRow(W, M, run);
+  },
+};
+
+// ================================================================ B: hold to tear it off
+const HOLD_MS = 1100;
+const sheetT = (p) => `perspective(1100px) rotateX(${p * 12}deg) translateY(${p * 7}px) rotate(${-p * 0.9}deg)`;
+const B = {
+  setup(run, W) {
+    const hint = W.pad.text.lastChild;
+    hint.textContent = "Hold Done to tear it off.";
+    const stub = h("div", { class: "stub" });
+    const binding = h("div", { class: "binding" }, stub);
+    const sheet = h("div", { class: "bsheet" });
+    const page = h("div", { class: "bpage" });
+    W.sentences.replaceWith(page);
+    sheet.append(W.sentences);
+    page.append(binding, sheet);
+    Object.assign(W, { page, sheet, binding, stub });
+    wait(450, run).then(() => { page.classList.add("on"); sheet.classList.add("on"); }, ignore);
+
+    const btn = W.doneBtn;
+    btn.classList.add("holdbtn");
+    btn.prepend(h("span", { class: "hfill" }));
+    let p = 0, holding = false, committed = false, last = 0, token = 0;
+    const paint = (x) => {
+      const q = Math.max(-0.2, x);
+      sheet.style.transform = sheetT(q) + (holding && x > 0.8 ? ` translateX(${(Math.random() - 0.5) * 1.8}px)` : "");
+      sheet.style.setProperty("--p", Math.max(0, x));
+      btn.style.setProperty("--p", Math.max(0, Math.min(1, x)));
+    };
+    const frame = (t) => {
+      if (!holding || run !== RUN) return;
+      p = Math.min(1, p + ((t - last) * S.speed) / HOLD_MS);
+      last = t;
+      paint(p);
+      if (p >= 1) { holding = false; committed = true; B.rip(run, W).catch(ignore); return; }
+      requestAnimationFrame(frame);
+    };
+    const down = (e) => {
+      if (committed || holding || run !== RUN) return;
+      if (e.type === "keydown") { if (e.repeat || (e.key !== " " && e.key !== "Enter")) return; e.preventDefault(); }
+      else try { btn.setPointerCapture(e.pointerId); } catch {}
+      holding = true; token++; last = performance.now();
+      hint.classList.remove("nudge");
+      hint.textContent = "Keep holding…";
+      requestAnimationFrame(frame);
+    };
+    const up = (e) => {
+      if (!holding) return;
+      if (e.type === "keyup" && e.key !== " " && e.key !== "Enter") return;
+      holding = false;
+      const my = ++token, from = p;
+      hint.textContent = "Hold Done to tear it off.";
+      if (from < 0.3) { void hint.offsetWidth; hint.classList.add("nudge"); }
+      springValue(from, 0, SPR.press, (x) => { if (my !== token) return false; p = Math.max(0, x); paint(x); }, run);
+    };
+    btn.addEventListener("pointerdown", down);
+    btn.addEventListener("pointerup", up);
+    btn.addEventListener("pointercancel", up);
+    btn.addEventListener("keydown", down);
+    btn.addEventListener("keyup", up);
+    btn.addEventListener("contextmenu", (e) => e.preventDefault());
+  },
+  async rip(run, W) {
+    const { sheet, binding } = W;
+    // the tear: a ragged top edge on the sheet, the stub left on the pad
+    const n = 64, pts = [];
+    for (let i = 0; i <= n; i++) pts.push([(i / n) * 100, 1 + Math.random() * 4.5]);
+    sheet.style.clipPath = `polygon(-60px calc(100% + 80px), -60px ${pts[0][1]}px, ${pts.map(([x, y]) => `${x}% ${y}px`).join(", ")}, calc(100% + 60px) ${pts[n][1]}px, calc(100% + 60px) calc(100% + 80px))`;
+    W.stub.style.clipPath = `polygon(0 0, 100% 0, ${pts.slice().reverse().map(([x, y]) => `${x}% ${y + 0.5}px`).join(", ")})`;
+    sheet.classList.add("torn");
+    binding.classList.add("ripped");
+    W.doneBtn.classList.remove("ready");
+    // lift the sheet out of the flow into the overlay, exactly where it is
+    const st = sRect(), pr = W.page.getBoundingClientRect();
+    const width = sheet.offsetWidth, left = pr.left - st.left - (width - pr.width) / 2, top = pr.top - st.top;
+    Object.assign(W.page.style, { height: `${W.page.offsetHeight}px`, width: `${W.page.offsetWidth}px` });
+    W.overlay.append(sheet);
+    Object.assign(sheet.style, { position: "absolute", left: `${left}px`, top: `${top}px`, width: `${width}px`, margin: "0", color: "var(--graphite)" });
+    const free = "translate(0px, -16px) rotate(-2.2deg) scale(1)";
+    await anim(sheet, [{ transform: sheetT(1) }, { transform: free }], "nib");
+    alive(run);
+    // the pad and the rest of Writing go
+    anim(W.wbar, [{ opacity: 1 }, { opacity: 0 }], null, { duration: 240 });
+    await fadeOut(W.wbody, 8);
+    alive(run);
+    W.wbody.remove();
+    const M = buildMaking(W, { copy: true });
+    W.inner.append(M.root);
+    const sw = sheet.offsetWidth, sh = sheet.offsetHeight, narrow = stage.clientWidth < 600;
+    const s = narrow ? Math.min(0.78, (stage.clientWidth - 64) / sw) : Math.min(0.62, 430 / sw);
+    Object.assign(M.copySlot.style, { width: `${sw * s}px`, height: `${sh * s}px` });
+    riseIn(M.phead);
+    riseIn(M.sheetwrap, 80);
+    const cr = M.copySlot.getBoundingClientRect(), st2 = sRect();
+    const tx = cr.left - st2.left + cr.width / 2 - (left + sw / 2), ty = cr.top - st2.top - top;
+    await anim(sheet, [{ transform: free }, { transform: `translate(${tx}px, ${ty}px) rotate(1deg) scale(${s})` }], "paper");
+    alive(run);
+    // clipped up as the compositor's copy
+    const clip = sv("svg", { viewBox: "0 0 38 26", class: "bclip" });
+    clip.innerHTML = `<rect x="3" y="4" width="32" height="15" rx="3" fill="#2E2C29"/><rect x="3" y="4" width="32" height="5" rx="2.5" fill="#4A4743"/><path d="M11 4 C 11 -3, 27 -3, 27 4" fill="none" stroke="#77736C" stroke-width="2.2" stroke-linecap="round"/>`;
+    clip.style.left = `${cr.left - st2.left + cr.width / 2}px`;
+    clip.style.top = `${cr.top - st2.top + 2}px`;
+    W.overlay.append(clip);
+    anim(clip, [{ transform: "translateY(-14px) scale(.6)", opacity: 0 }, { transform: "none", opacity: 1 }], "nib");
+    await wait(260, run);
+    W.sentences.classList.add("spent");
+    await castAll(W, M, run, (ch) => W.letterOf.get(ch));
+    await setRow(W, M, run);
+  },
+};
+
+// ================================================================ C: draw a line under it
+const C = {
+  setup(run, W) {
+    // the prompt asks for one more "word": a line
+    W.promptRow.classList.remove("ghost");
+    const pline = h("span", { class: "pline" });
+    W.promptRow.firstChild.replaceChildren(pline);
+    W.pad.text.remove();
+    const pad = W.pad;
+    pad.el.append(h("span", { class: "pad-top" }, "That’s both sentences."), h("span", { class: "pad-hint" }, "Draw a line under them to finish."));
+    const x0 = pad.W * 0.12, x1 = pad.W * 0.88, y = pad.base + 4;
+    const ghost = sv("svg", { class: "ghostline", width: pad.W, height: 12, style: `left:0;top:${y - 6}px;overflow:visible` });
+    ghost.innerHTML = `<line x1="${x0}" x2="${x1}" y1="6" y2="6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-dasharray="0.5 9" opacity=".35"/>`;
+    ghost.style.color = "var(--ink)";
+    const dot = h("span", { class: "ghostdot", style: `left:${x0}px;top:${y}px;--len:${x1 - x0}px` });
+    const cap = h("div", { class: "drawcap", "aria-label": "Draw a line under your sentences" });
+    pad.el.append(ghost, dot, cap);
+
+    const lineSvg = sv("svg", { class: "linesvg" });
+    const lineG = sv("g");
+    const path = sv("path");
+    lineG.append(path);
+    lineSvg.append(lineG);
+    W.overlay.append(lineSvg);
+    const size = 0.16 * pad.xh;
+    Object.assign(W, { pline, ghost, dot, cap, lineG, path, size });
+
+    let pts = [], drawing = false, committed = false;
+    const st0 = () => sRect();
+    const pr = () => pad.el.getBoundingClientRect();
+    const render = (last = false) => paintInk(path, pts, size, { pressure: false, last });
+    const fillFor = () => {
+      const r = pr(), st = st0();
+      const xs = pts.map((q) => q[0] - (r.left - st.left));
+      if (!xs.length) return 0;
+      return Math.max(0, Math.min(1, (Math.max(...xs) - Math.min(...xs)) / (pad.W * 0.76)));
+    };
+    cap.addEventListener("pointerdown", (e) => {
+      if (committed || run !== RUN) return;
+      try { cap.setPointerCapture(e.pointerId); } catch {}
+      const st = st0();
+      pts = [[e.clientX - st.left, e.clientY - st.top, 0.5]];
+      drawing = true;
+      path.getAnimations().forEach((a) => a.cancel());
+      path.style.opacity = 1;
+      dot.style.display = "none";
+      render();
+    });
+    cap.addEventListener("pointermove", (e) => {
+      if (!drawing) return;
+      const st = st0();
+      const co = e.getCoalescedEvents?.();
+      for (const ev of co && co.length ? co : [e]) {
+        const q = [ev.clientX - st.left, ev.clientY - st.top, 0.5], l = pts[pts.length - 1];
+        if (Math.hypot(q[0] - l[0], q[1] - l[1]) >= 0.6) pts.push(q);
+      }
+      render();
+      pline.style.setProperty("--f", fillFor());
+    });
+    const end = () => {
+      if (!drawing) return;
+      drawing = false;
+      render(true);
+      const xs = pts.map((q) => q[0]), ys = pts.map((q) => q[1]);
+      const xspan = Math.max(...xs) - Math.min(...xs), yspan = Math.max(...ys) - Math.min(...ys);
+      if (xspan >= pad.W * 0.4 && yspan <= Math.max(44, xspan * 0.3)) {
+        committed = true;
+        C.go(run, W, pts).catch(ignore);
+      } else {
+        anim(path, [{ opacity: 1 }, { opacity: 0 }], null, { duration: 420 });
+        pline.style.setProperty("--f", 0);
+        dot.style.display = "";
+      }
+    };
+    cap.addEventListener("pointerup", end);
+    cap.addEventListener("pointercancel", end);
+    // tapping Done draws the line for you
+    W.doneBtn.addEventListener("click", async () => {
+      if (committed || drawing) return;
+      committed = true;
+      dot.style.display = "none";
+      const r = pr(), st = st0();
+      const ax = r.left - st.left + pad.W * 0.1, bx = r.left - st.left + pad.W * 0.9, by = r.top - st.top + pad.base + 6;
+      const full = [];
+      for (let i = 0; i <= 90; i++) { const t = i / 90; full.push([lerp(ax, bx, t), by + Math.sin(t * Math.PI * 1.4) * 4 - t * 5, 0.5]); }
+      const t0 = performance.now(), T = 460;
+      await new Promise((res) => {
+        const f = (now) => {
+          if (run !== RUN) return res();
+          const k = Math.min(1, ((now - t0) * S.speed) / T), e = 1 - Math.pow(1 - k, 2);
+          pts = full.slice(0, Math.max(2, Math.round(e * full.length)));
+          render(k === 1);
+          pline.style.setProperty("--f", fillFor());
+          if (k < 1) requestAnimationFrame(f); else res();
+        };
+        requestAnimationFrame(f);
+      });
+      C.go(run, W, pts).catch(ignore);
+    });
+  },
+  async go(run, W, pts) {
+    const { path, lineG, size } = W;
+    W.pline.style.setProperty("--f", 1);
+    W.doneBtn.classList.remove("ready");
+    anim(W.ghost, [{ opacity: 1 }, { opacity: 0 }], null, { duration: 200 });
+    // 1. the line straightens with a twang
+    const ym = pts.reduce((a, q) => a + q[1], 0) / pts.length;
+    const xa = Math.min(...pts.map((q) => q[0])), xb = Math.max(...pts.map((q) => q[0]));
+    const dir = pts[0][0] <= pts[pts.length - 1][0] ? 1 : -1;
+    const straight = pts.map((q, i) => [dir > 0 ? lerp(xa, xb, i / (pts.length - 1)) : lerp(xb, xa, i / (pts.length - 1)), ym, 0.5]);
+    springValue(0, 1, SPR.paper, (t) => paintInk(path, pts.map((q, i) => [lerp(q[0], straight[i][0], t), lerp(q[1], straight[i][1], t), 0.5]), size, { pressure: false }), run);
+    await wait(420, run);
+    // 2. everything above the line slides up and away, like a typewriter carriage
+    const M = buildMaking(W);
+    const top = W.wbody.offsetTop;
+    Object.assign(M.root.style, { position: "absolute", left: "0", right: "0", top: `${top}px` });
+    M.phead.style.opacity = 0;
+    M.slots.forEach((s) => (s.slot.style.transform = "scaleY(0)"));
+    W.inner.append(M.root);
+    const st = sRect(), gr = M.grid.getBoundingClientRect();
+    const rx0 = gr.left - st.left - 14, rx1 = gr.right - st.left + 14, ry = gr.bottom - st.top + 14;
+    const sy = Math.min(1, 6 / size);
+    springValue(0, 1, SPR.paper, (t) => {
+      lineG.setAttribute("transform", `translate(${lerp(xa, rx0, t)} ${lerp(ym, ry, t)}) scale(${lerp(1, (rx1 - rx0) / (xb - xa), t)} ${lerp(1, sy, t)}) translate(${-xa} ${-ym})`);
+    }, run);
+    anim(W.wbar, [{ opacity: 1 }, { opacity: 0 }], null, { duration: 240 });
+    anim(W.wbody, [{ opacity: 1, transform: "none" }, { opacity: 0, transform: `translateY(${-Math.round(W.wbody.offsetHeight * 0.55)}px)` }], null, { duration: 520, easing: "cubic-bezier(.5,0,.75,0)" });
+    await wait(380, run);
+    anim(M.phead, [{ opacity: 0, transform: "translateY(20px)" }, { opacity: 1, transform: "none" }], "paper");
+    // 3. the slots stand up on the line
+    M.slots.forEach((s, i) => anim(s.slot, [{ transform: "scaleY(0)", opacity: 0 }, { transform: "scaleY(1)", opacity: 1 }], "nib", { delay: i * 18 }));
+    await wait(700, run);
+    // 4. casting as built today: each glyph lifts in, then turns to type
+    for (let i = 0; i < 26; i++) {
+      const s = M.slots[i];
+      s.frontG.style.opacity = 1;
+      anim(s.frontSvg, [{ opacity: 0, transform: "scale(.6)" }, { opacity: 1, transform: "none" }], "nib");
+      s.slot.classList.add("lifted");
+      M.caption.textContent = `casting letters · ${i + 1}/26`;
+      wait(200, run).then(() => s.card.classList.add("cast"), ignore);
+      await wait(125, run);
+    }
+    W.wbody.remove();
+    await setRow(W, M, run);
+  },
+};
+
+const VARIANTS = { A, B, C };
+function ignore(e) { if (!(e instanceof Cancel)) console.error(e); }
+
+// ---------------------------------------------------------------- mount
+function setInk(k) {
+  S.ink = k;
+  stage.style.setProperty("--ink", k.hex);
+  stage.style.setProperty("--on-ink", k.id === "graphite" ? "#FFFEFB" : "#FFFFFF");
+  stage.querySelectorAll(".inkmini button").forEach((b, i) => b.setAttribute("aria-pressed", String(INKS[i].id === k.id)));
+  renderControls();
+}
+function mount() {
+  const run = ++RUN;
+  stage.getAnimations({ subtree: true }).forEach((a) => a.cancel());
+  stage.replaceChildren();
+  stage.className = `stage${S.view === "phone" ? " phone" : ""}`;
+  setInk(S.ink);
+  const W = buildWriting();
+  VARIANTS[S.v].setup(run, W);
+  renderCopy();
+}
+
+// ---------------------------------------------------------------- review copy
+const COPY = {
+  A: {
+    name: "Lift off the page",
+    try: "Tap Done.",
+    one: "Your sentences stay where they are. Each letter you wrote lifts out of its word and flies into the type row.",
+    commit: "Tap Done, as today.",
+    carries: "Your letters. You watch the page being taken apart.",
+    beats: [
+      ["0 s", "The bar, the guides and the prompt fold away. Your sentences stay where they are."],
+      ["0.3 s", "“Making your font” and 26 empty slots rise in under them. The sentences go faint."],
+      ["0.7 s", "From a to z, 125 ms apart, each letter lifts out of its word in full ink, flies to its slot on the paper spring, and turns to metal type."],
+      ["~5 s", "What’s left of the sentences folds away. The row slides up and closes. Ink and press carry on."],
+    ],
+    good: [
+      "It does what DECISIONS.md already describes: “lifted off the page, cast into type”. Today the page fades out and the letters appear in empty slots.",
+      "You see which of your letters became which glyph, so you understand what just happened.",
+      "It adds no time. The flights are the cast step, and each one still waits for its glyph from the worker.",
+      "Nothing new to learn. Done still means Done.",
+    ],
+    cost: [
+      "Finality is shown, not asked. A slip of the finger on Done commits.",
+      "Writing and Making share one screen for about 4 s, so the fade-and-rise swap between them (SPEC §3) goes.",
+      "26 flights on a mid-range phone need to stay transform and opacity only.",
+    ],
+    build: [
+      "Foundry gets each chosen letter’s position in the sentence; <code>ui.lift(i)</code> becomes a FLIP from there to the slot.",
+      "The segmenter’s letter assignment is already on <code>WrittenWord</code>, so the ink for each letter exists.",
+      "Reduced motion: each letter fades out of its word as it fades into its slot, at the same pace.",
+    ],
+  },
+  B: {
+    name: "Hold to tear it off",
+    try: "Press and hold Done.",
+    one: "The page lifts off a perforated pad. Let go early and it settles back. Hold past the point of no return and it tears off and is clipped above the type as the copy.",
+    commit: "Hold Done for about a second (or hold Space). Letting go early works as the “are you sure?”.",
+    carries: "The page as an object, clipped up as the compositor’s copy. Letters lift off it into type.",
+    beats: [
+      ["15/15", "The sentences become a sheet on a pad, with a perforated top edge."],
+      ["holding", "The sheet lifts toward you and the button fills. Near the end it strains. Let go and it drops back on the press spring."],
+      ["1.1 s", "It tears along the perforation, swings free, and flies up beside the heading, clipped as the copy."],
+      ["then", "Letters lift off the copy into their slots, as in A."],
+    ],
+    good: [
+      "The one-way door is something you physically cross. Letting go early is a confirm step that isn’t a dialog.",
+      "A stray tap can’t commit.",
+      "The one irreversible moment gets a beat of ceremony.",
+    ],
+    cost: [
+      "A gesture to teach. The pad has to say “Hold Done”, and most people will tap first (try it: a tap only nudges the hint).",
+      "About 2 s more before Making starts (the hold, the tear, the flight up).",
+      "Hold-to-confirm needs a keyboard path and an accessible description, and it’s awkward with a screen reader.",
+      "A pad, a clip and a press on one page is busier than “desk toy, not museum piece”.",
+    ],
+    build: [
+      "A hold controller on Done (pointer, Space and Enter).",
+      "The sheet treatment for the sentences at 15/15, and a copy slot in Foundry.",
+      "Reduced motion: the button fill only, then the sheet fades to the copy.",
+    ],
+  },
+  C: {
+    name: "Draw a line under it",
+    try: "Draw a line across the pad (or tap Done).",
+    one: "You finish by writing. Your line straightens into a rule, the page slides away like a typewriter carriage, and the type is set on your line.",
+    commit: "A stroke across the pad. The prompt shows a line that fills as you draw, like a letter does. Tapping Done draws the line for you.",
+    carries: "Your line. It stays under the type row through Making as the rule it sits on.",
+    beats: [
+      ["15/15", "The prompt shows a faint line where the next word would be. The pad says “Draw a line under them to finish.”"],
+      ["pen-up", "Any line across 40% of the pad straightens with a twang (paper spring)."],
+      ["0.4 s", "The page slides up and away. The line rises to sit under the type row."],
+      ["1.1 s", "26 faint letters stand up on it. Casting runs as it does today."],
+    ],
+    good: [
+      "You finish with the same action you’ve used the whole time: drawing.",
+      "“Draw a line under it” means “that’s finished, no going back”.",
+      "The line is a piece of your hand that stays with you through Making.",
+    ],
+    cost: [
+      "Letters still appear in empty slots, so today’s continuity gap stays.",
+      "It rests on an idiom not everyone knows; the prompt has to carry it.",
+      "A line that’s too short does nothing, which feels like being turned down in a product that never rejects anything.",
+      "It still needs Done for keyboard users and for people who won’t draw.",
+    ],
+    build: [
+      "A line check on the pad at 15/15, and a rule element in Foundry.",
+      "Reduced motion: the line draws, then fades; the slots fade in.",
+    ],
+  },
+};
+
+function renderCopy() {
+  const c = COPY[S.v];
+  document.getElementById("try-do").textContent = c.try;
+  document.getElementById("try-one").textContent = c.one;
+  document.getElementById("stagecap").textContent = S.view === "phone" ? "390 px · phone" : "desktop width";
+  const li = (x) => `<li>${x}</li>`;
+  document.getElementById("notes").innerHTML = `
+    <div class="card-n"><h3>how you commit</h3><p>${c.commit}</p><h3 style="margin-top:14px">what carries over</h3><p>${c.carries}</p></div>
+    <div class="card-n"><h3>beats</h3><ol style="list-style:none;padding:0">${c.beats.map(([t, x]) => `<li><span class="t">${t}</span> ${x}</li>`).join("")}</ol></div>
+    <div class="card-n good"><h3>good</h3><ul>${c.good.map(li).join("")}</ul></div>
+    <div class="card-n cost"><h3>costs</h3><ul>${c.cost.map(li).join("")}</ul></div>
+    <div class="card-n"><h3>to build it</h3><ul>${c.build.map(li).join("")}</ul></div>`;
+}
+
+document.getElementById("rec").innerHTML = `
+  <div class="tag">recommendation</div>
+  <h2>A: lift off the page.</h2>
+  <ul>
+    <li><b>It fixes the actual break.</b> Today your page fades out and your letters turn up in empty slots. In A you see your letters leave your words, which is what DECISIONS.md promised (“lifted off the page, cast into type”).</li>
+    <li><b>The finality is shown, not asked.</b> Once your letters have left the page, it’s obvious there’s no going back. There’s no confirm step and no gesture to learn.</li>
+    <li><b>It adds no time.</b> The flights are the cast step, and each still waits on its glyph from the worker.</li>
+    <li><b>A mistake after Done is cheap.</b> Any letter can be rewritten on the Done sheet (SPEC §8.4), and since the “logo is home” commit the logo goes back to Hero and picking an ink brings back all 15 words. So Done isn’t strictly one-way anymore. B’s hold would make everyone learn a gesture to guard against a small, recoverable mistake.</li>
+  </ul>
+  <p class="revisit"><b>Revisit if</b> testers tap Done before they mean to, or go back to fix letters on the Done sheet that they’d have caught while writing. Then put B’s hold in front of A’s flights; the two fit together. C’s line is worth keeping as an idea for the note’s baseline on Done.</p>`;
+
+const CMP = [
+  ["you commit by", "a tap", "holding ~1.1 s", "drawing a stroke (or a tap)"],
+  ["what carries over", "your letters", "your page, as the copy", "your line, as the rule"],
+  ["letters come from your writing", "yes, from the sentences", "yes, from the copy", "no, same as today"],
+  ["time added before Making", "none: the flights are the cast", "~2 s", "~1.5 s"],
+  ["new thing to learn", "nothing", "hold, don’t tap", "draw the line"],
+  ["“no going back” is…", "shown: the page is taken apart", "felt: a threshold you cross", "said: the idiom"],
+  ["a stray tap commits", "yes", "no", "yes, via Done"],
+];
+document.getElementById("cmp").innerHTML = `<thead><tr><th></th><th><span class="k">A</span>Lift off</th><th><span class="k">B</span>Tear off</th><th><span class="k">C</span>Line under</th></tr></thead>
+  <tbody>${CMP.map(([k, a, b, c], i) => `<tr><th>${k}</th><td class="${i < 4 ? "win" : ""}">${a}</td><td class="${i === 6 ? "win" : ""}">${b}</td><td>${c}</td></tr>`).join("")}</tbody>`;
+
+// ---------------------------------------------------------------- controls
+function seg(id, opts, key) {
+  const el = document.getElementById(id);
+  el.replaceChildren(...opts.map(([v, label]) => h("button", { "aria-pressed": String(S[key] === v), onclick: () => { S[key] = v; if (key === "speed") applySpeed(); mount(); } }, label)));
+}
+function renderControls() {
+  document.getElementById("tabs").replaceChildren(...["A", "B", "C"].map((k) =>
+    h("button", { class: "tab", role: "tab", "aria-selected": String(S.v === k), onclick: () => { S.v = k; try { history.replaceState(null, "", `#${k}`); } catch {} mount(); } },
+      h("span", { class: "k" }, k), COPY[k].name, k === "A" ? h("span", { class: "rec-dot" }, "recommended") : null)));
+  seg("seg-view", [["desktop", "Desktop"], ["phone", "Phone"]], "view");
+  seg("seg-hand", [["neat", "Neat"], ["messy", "Messy"]], "hand");
+  seg("seg-speed", [[1, "1×"], [0.25, "¼×"]], "speed");
+  document.getElementById("inks").replaceChildren(...INKS.map((k) => h("button", { style: `--c:${k.hex}`, "aria-label": k.name, "aria-pressed": String(k.id === S.ink.id), onclick: () => setInk(k) })));
+}
+document.getElementById("replay").addEventListener("click", mount);
+addEventListener("keydown", (e) => { if ((e.key === "r" || e.key === "R") && !e.metaKey && !e.ctrlKey && document.activeElement?.tagName !== "INPUT") mount(); });
+const fromHash = location.hash.slice(1).toUpperCase();
+if (VARIANTS[fromHash]) S.v = fromHash;
+let lastW = 0;
+new ResizeObserver(() => { const w = stage.clientWidth; if (lastW && Math.abs(w - lastW) > 40) mount(); lastW = w; }).observe(document.getElementById("stage").parentElement);
+
+applySpeed();
+await document.fonts.ready;
+mount();
+</script>
+</body>
+</html>

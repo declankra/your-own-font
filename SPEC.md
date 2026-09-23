@@ -7,6 +7,8 @@ Done**. There are no other routes except the iOS profile-signing endpoint (see
 - Reference prototype: `design/homepage-prototype.html` (published:
   https://claude.ai/artifact/P8FxrvswJAa16wH2n5R7T2). When this spec and the prototype
   disagree, this spec wins.
+- Writing → Making transition: `design/done-transition.html`, variant A "lift off the page"
+  (owner, 2026-09-22). B and C in that file are rejected alternatives.
 - Visual identity: `design/identity.html` (published:
   https://claude.ai/artifact/583uPtx6UzwXcGEqeXPeXA). Tokens are summarised in §2.
 - Product and architecture decisions: `DECISIONS.md`. Read it first.
@@ -28,10 +30,13 @@ A white screen says "Draw two sentences. Get a font for your own handwriting." T
 *handwriting* writes itself. You pick one of three inks, and that is the start button. Two
 sentences appear. You write them one word at a time on ruled guides. Each letter of the
 prompt fills with ink as you draw it, and each finished word flies up into the sentence in
-your handwriting. When both sentences are done you tap **Done**. Your letters are then
-cast into type, set in a row, inked and pressed, and the alphabet comes out printed in your
-hand. A short note writes itself back to you, stroke by stroke. There are two things left
-to do: **Download** the font, or **Share** the page so someone else can make theirs.
+your handwriting. When the last word lands, the page rests for a beat so you see both
+sentences whole in your own hand. Then the page clears around them and, from a to z, each of
+your letters lifts out of its word and flies down to be cast into type. There is no Done
+button: finishing the last word is the start. The letters are set in a row, inked and
+pressed, and the alphabet comes out printed in your hand. A short note writes itself back
+to you, stroke by stroke. There are two things left to do: **Download** the font, or
+**Share** the page so someone else can make theirs.
 
 ---
 
@@ -69,7 +74,8 @@ to do: **Download** the font, or **Share** the page so someone else can make the
   in Figtree 760. There is no dot.
 - **Right, Hero only:** `free · open source`, where "open source" links to the GitHub repo
   and opens in a new tab. The repo URL is TBD (see §10).
-- **Right, Writing:** the ink picker, then the word count `7 / 15`, then **Done**.
+- **Right, Writing:** the ink picker, then the word count `7 / 15`. There is no Done button
+  (owner, 2026-09-22). The bar folds away with the rest of the page when Making starts.
 - **Right, Making and Done:** empty.
 
 ---
@@ -77,7 +83,7 @@ to do: **Download** the font, or **Share** the page so someone else can make the
 ## 3. State machine
 
 ```
-Hero --pick ink--> Writing --Done (15/15 words)--> Making --build ready + min 7s--> Done
+Hero --pick ink--> Writing --15th word written--> Making --build ready + min 7s--> Done
                      ^                                 |
                      |                            build error
                      +-------- "Try again" <---- Making (error)
@@ -86,6 +92,23 @@ Done --tap a letter--> Rewrite-letter sheet --save--> Done (glyph re-printed)
 
 - Transitions between states: the outgoing content rises 14px and fades (300ms), then the
   incoming content rises from 20px on the `paper` spring. Scroll resets to the top.
+- **Except Writing → Making,** which is one screen (variant A, owner 2026-09-22; mock:
+  `design/done-transition.html`). There is no fade and no scroll reset between them:
+  1. **Trigger.** The word completion that brings the count to 15 starts it, with no tap.
+     That includes rewriting a reopened word and the second **Next word** that keeps a stuck
+     word as written. Arriving at a page that is already 15/15 (back through the logo) does
+     not start it; see §5.5. **(agent call)**
+  2. **Beat.** 1.2 s from that completion: the word's flight lands and both sentences rest,
+     whole, in the person's ink. From the start of the beat, written words can't be reopened;
+     the logo still goes home. **(agent call)**
+  3. **Fold.** The top-bar tools, the prompt row, the guides and the footnote fade and drop
+     10px (280ms). The sentences stay exactly where they are.
+  4. **Making mounts** on the same screen with the same sentences at the same place. The
+     heading and the sheet rise in below them, and the written words fade to Faint (1.4s).
+  5. **Lift** (the Cast step, §7): a to z, each letter lifts out of its word in full ink and
+     flies to its slot.
+  6. **After z,** what's left of the sentences folds away (height and opacity, `paper`) and
+     the row slides up into Making's usual place. Making carries on as built.
 - **No persistence.** Strokes live in memory. Reloading the page returns to Hero. Once the
   first stroke exists, `beforeunload` asks for confirmation. **(agent call)**
 - **No analytics.** Nothing about the session leaves the device. (Owner, 2026-09-22.)
@@ -146,6 +169,7 @@ Done --tap a letter--> Rewrite-letter sheet --save--> Done (glyph re-printed)
    height. The pen cursor is a 9px dot in the current ink.
 4. A muted hint under the lines: "Write “bring” on the lines".
 5. A footnote: "Tap a letter above to redo it. Tap a finished word to rewrite it."
+   It folds away with the rest of the page when Making starts.
 
 ### 5.2 The pen
 
@@ -181,9 +205,13 @@ under 0.6px. `touch-action: none` on the area.
 
 ### 5.5 Completion
 
-When all 15 words are written, the prompt and tools hide. The area shows "That's both
-sentences." / "Tap Done and we'll make your font." **Done** turns from disabled (Tissue on
-Faint) to the ink colour with a slow breathing ring.
+There is no Done button and no all-done message in the normal flow (owner, 2026-09-22).
+Writing the 15th word starts the beat and then Making (§3).
+
+**Coming back to a finished page** (the logo, then an ink) **(agent call):** the prompt and
+tools stay hidden and the area shows "That's both sentences." / "Tap a word to rewrite it."
+with one **Make my font** button. The button goes straight to the fold (no beat). Rewriting
+a word instead brings the count back to 15, which starts the beat as usual.
 
 ### 5.6 Sentences
 
@@ -209,7 +237,10 @@ Faint) to the ink colour with a slow breathing ring.
       x-height as the surrounding type. *Sized in `ex`, so it matches Figtree's own x-height.*
 - [x] Undo, redo-letter and rewrite-word all work and never block progress.
       *Also when nothing fits (§6.3): a second “Next word” keeps the word as written.*
-- [x] Done is disabled until 15/15.
+- [ ] Writing the 15th word starts Making with no tap, after a 1.2 s beat, on phone and
+      desktop, in all three inks, with reduced motion on and off. There is no Done button.
+- [ ] Coming back to a finished page does not start Making; it offers a word to rewrite and
+      **Make my font**.
 - [x] Rotating the device or resizing the window clears only the in-progress word.
 
 ---
@@ -293,18 +324,26 @@ Heading: "Making your font". Below it, a DM Mono step caption.
 
 | Step | What you see | Caption | Pipeline work it waits on (Web Worker) |
 |---|---|---|---|
-| Cast | 26 slots a–z, as Faint letters. In order, each of your glyphs lifts in (`nib`), then the card flips (`paper`) to a mirrored metal sort. About 125ms per letter | `casting letters · 12/26` | Per-glyph outline (`perfect-freehand`), union (`polygon-clipping`), smoothing (`fit-curve`). One event per glyph |
+| Cast | 26 slots a–z, as Faint letters, below your sentences. In order, each letter lifts out of its word in full ink (`nib`), flies to its slot (`paper`, transform and opacity only), and 200ms after it lands the card flips (`paper`) to a mirrored metal sort. A new letter lifts about every 125ms. The letter that flies is the exact sample the font uses for that glyph (the model's best, not the first written). After z the sentences fold away and the row slides up | `casting letters · 12/26` | Per-glyph outline (`perfect-freehand`), union (`polygon-clipping`), smoothing (`fit-curve`). One event per glyph |
 | Set | The row closes up (gap 12 → 4px) | `setting the row` | Metrics: sidebearings and advances |
 | Ink | A tomato roller sweeps left to right. The sorts' faces take the ink colour as it passes | `inking` | `calt` variants from repeated letters |
 | Press | The press head (tomato, screw rod, blue knobs) drops onto the row on the `press` spring, with a 3px thunk shake. The sorts flip back to printed paper glyphs (with a slight roughened letterpress edge), and the head lifts away | `pressing` | `opentype.js` build to a CFF `.otf` Blob |
 
+- **Lift timing (agent call):** the first letter lifts 200ms after Making mounts (it was
+  500ms before the sentences stayed on screen), so the flights overlap the old pauses and
+  Making takes no longer. The row is set only once the last letter has landed.
 - **Honest progress:** a step's animation can't finish before its pipeline work is done.
   If the work is slow, the step holds (for example, the next letter waits to be cast).
   If the work is fast, the animation still takes at least 7s in total on the first run.
-- **Reduced motion:** no flips, roller or press. The alphabet fills in with a simple
-  fade per letter, then goes straight to Done. **(agent call):** the fades are paced so the
-  first run still takes ≥ 7s. Reduced motion is the system setting, or `?motion=reduce`.
-- **Second run** (after Try again) **(agent call):** no 7s floor, and a **Skip** button.
+- **Reduced motion:** no flights, flips, roller or press. Each letter fades out of its word
+  as it fades into its slot, then the sentences fade out and Making goes straight to Done.
+  **(agent call):** the fades are paced so the first run still takes ≥ 7s. Reduced motion
+  is the system setting, or `?motion=reduce`.
+- **Second run** (after Try again) **(agent call):** no 7s floor, and a **Skip** button. Skip
+  lands every letter in the air at once.
+- **Try again** has no sentences to lift from (they folded away), so the letters lift in
+  where they are, as before this change. An error before z folds the sentences away too.
+  **(agent call)**
 - **Error:** if the worker throws, the press stops, the heading changes to "That didn't
   work", and the caption reads "Your writing is still here." One button, **Try again**,
   re-runs the pipeline.
@@ -312,6 +351,10 @@ Heading: "Making your font". Below it, a DM Mono step caption.
 **Acceptance**
 
 - [x] Each cast letter appears only after the worker reports that glyph.
+- [ ] Each letter flies from the ink of the sample the font uses, out of its own word, and
+      the sentences don't move or cross-fade at the hand-off.
+- [ ] Letters move with transform and opacity only: `nib` for the lift, `paper` for the
+      flight. Making takes no longer than it did with the Done button.
 - [x] The total is ≥ 7s on the first run and never shows a finished state before the Blob
       exists. *9.6 s full motion, 7.4 s reduced motion (end to end, production build).*
 - [x] The reduced-motion and error states are implemented and reachable in tests.
