@@ -237,10 +237,13 @@ a word instead brings the count back to 15, which starts the beat as usual.
       x-height as the surrounding type. *Sized in `ex`, so it matches Figtree's own x-height.*
 - [x] Undo, redo-letter and rewrite-word all work and never block progress.
       *Also when nothing fits (§6.3): a second “Next word” keeps the word as written.*
-- [ ] Writing the 15th word starts Making with no tap, after a 1.2 s beat, on phone and
+- [x] Writing the 15th word starts Making with no tap, after a 1.2 s beat, on phone and
       desktop, in all three inks, with reduced motion on and off. There is no Done button.
-- [ ] Coming back to a finished page does not start Making; it offers a word to rewrite and
-      **Make my font**.
+      *`npm run e2e` (Ballpoint, 375 and 1280 px, reduced motion on and off); recorded in
+      headless Chromium in Tomato at 390 px and Graphite at 1280 px.*
+- [x] Coming back to a finished page does not start Making; it offers a word to rewrite and
+      **Make my font**. *The desktop e2e run goes home through the logo, waits 2.5 s at 15/15,
+      then uses the button (second run: Skip is shown).*
 - [x] Rotating the device or resizing the window clears only the in-progress word.
 
 ---
@@ -351,10 +354,15 @@ Heading: "Making your font". Below it, a DM Mono step caption.
 **Acceptance**
 
 - [x] Each cast letter appears only after the worker reports that glyph.
-- [ ] Each letter flies from the ink of the sample the font uses, out of its own word, and
-      the sentences don't move or cross-fade at the hand-off.
-- [ ] Letters move with transform and opacity only: `nib` for the lift, `paper` for the
-      flight. Making takes no longer than it did with the Done button.
+- [x] Each letter flies from the ink of the sample the font uses, out of its own word, and
+      the sentences don't move or cross-fade at the hand-off. *`BuiltGlyph.from` is checked
+      against an independent pick of the variants (pipeline test); in the e2e each flyer
+      starts within 0.4 px of the ink that left its word, and the sentences move 0 px with no
+      blank frame between Writing and Making.*
+- [x] Letters move with transform and opacity only: `nib` for the lift, `paper` for the
+      flight. Making takes no longer than it did with the Done button. *Fold to Done, in the
+      page: 9.5 s desktop, 9.4 s phone, 7.4 s reduced (with the Done button, tap to Done:
+      9.6 s, 9.6 s, 7.4 s).*
 - [x] The total is ≥ 7s on the first run and never shows a finished state before the Blob
       exists. *9.6 s full motion, 7.4 s reduced motion (end to end, production build).*
 - [x] The reduced-motion and error states are implemented and reachable in tests.
