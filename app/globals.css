@@ -75,8 +75,6 @@ button.logo:active .mark { transform: scale(0.94); }
 .btn.icon { width: 42px; padding: 0; }
 .btn:disabled { background: var(--tissue); color: var(--faint); box-shadow: none; cursor: default; }
 .btn svg { width: 19px; height: 19px; }
-.btn.ready { animation: breathe 2.4s ease-in-out infinite; }
-@keyframes breathe { 50% { box-shadow: 0 0 0 7px color-mix(in srgb, var(--ink) 16%, transparent), 0 8px 18px -10px var(--ink); } }
 
 /* ---------- 1. hero ---------- */
 .hero-body { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: clamp(44px, 7vw, 80px); padding-block: clamp(32px, 8vw, 96px); }
@@ -132,6 +130,17 @@ button.w { border: 0; background: none; padding: 0; margin: 0; font: inherit; le
 .alldone b { font-size: clamp(26px, 3.4vw, 38px); font-weight: 720; letter-spacing: -0.03em; }
 .alldone span { color: var(--muted); }
 .wfoot { color: var(--muted); font-size: 14.5px; margin-top: 18px; }
+.alldone .btn { pointer-events: auto; margin-top: 6px; }
+/* the lift (SPEC.md §3): the page folds away around the sentences, which never move */
+.leaving { opacity: 0; transform: translateY(10px); transition: opacity 280ms ease, transform 280ms ease; pointer-events: none; }
+.wbar.leaving { transform: none; }
+.sentences.locked .w.written { cursor: default; }
+.sentences.locked .w.written:hover { background: none; }
+.sentences.spent .w.written { color: var(--faint); transition: color 1.4s ease; }
+.w path.gone { opacity: 0; }
+.flyer { position: absolute; z-index: 40; display: block; overflow: visible; pointer-events: none; transform-origin: 0 0; will-change: transform; color: var(--ink); filter: drop-shadow(0 7px 6px rgb(var(--sh) / 0.22)); }
+@keyframes appear { from { opacity: 0; } }
+@media (max-width: 400px) { .topbar.lifting .logo .word { animation: appear 0.4s ease both; } }
 @media (max-width: 600px) {
   .topbar { min-height: 64px; }
   .logo { font-size: 17px; }
@@ -241,6 +250,17 @@ html[data-motion="reduce"] *, html[data-motion="reduce"] *::before, html[data-mo
 /* reduced motion keeps its fade: it is not movement */
 html[data-motion="reduce"] .slot.fade .front .glyph { transition: opacity 0.35s ease !important; transform: none; }
 @media (prefers-reduced-motion: reduce) { .slot.fade .front .glyph { transition: opacity 0.35s ease !important; transform: none; } }
+.slot.landed .front .glyph { transition: none; }
+/* reduced motion, the lift: the fold, the fading sentences and each letter leaving its word are
+   fades, not movement */
+html[data-motion="reduce"] .leaving { transition: opacity 280ms ease !important; transform: none; }
+html[data-motion="reduce"] .sentences.spent .w.written { transition: color 1.4s ease !important; }
+html[data-motion="reduce"] .spent .w path { transition: opacity 0.35s ease !important; }
+@media (prefers-reduced-motion: reduce) {
+  .leaving { transition: opacity 280ms ease !important; transform: none; }
+  .sentences.spent .w.written { transition: color 1.4s ease !important; }
+  .spent .w path { transition: opacity 0.35s ease !important; }
+}
 .skip { position: absolute; right: 0; top: 0; }
 .plane.fly .craft { animation: fly 900ms var(--ease-paper); }
 .plane.fly .trail { animation: trail 900ms ease; }

@@ -2,6 +2,10 @@
 // State 2: Writing (SPEC.md §5, §6). One word at a time on ruled guides. The prompt letter
 // fills as the pen moves (the gap rule, no model, no latency); after every pen-up the worker
 // re-solves the word with the letter model and the fills settle to match.
+//
+// There is no Done button (owner, 2026-09-22). The word completion that brings the count to 15
+// starts a short beat with both sentences whole, then the rest of the page folds away around
+// them and Making takes over on the same screen (SPEC.md §3, variant A).
 import { animate } from "motion/react";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { INKS, type Ink } from "@/lib/config";
@@ -10,9 +14,15 @@ import { useReduced } from "@/lib/reduced-motion";
 import { PAPER } from "@/lib/springs";
 import type { WrittenWord } from "@/lib/types";
 import { WordSession, type Guides } from "@/lib/word-session";
-import { INK_PAD, InkWordSvg } from "./InkWord";
+import { INK_PAD } from "./InkWord";
 import { Logo } from "./Logo";
 import { Pad, type PadSize } from "./Pad";
+import { Sentences } from "./Sentences";
+
+/** From the last word's completion to the fold: its flight lands, then the page rests, whole */
+export const BEAT_MS = 1200;
+/** The bar, prompt, guides and footnote fold away; then Making mounts */
+export const FOLD_MS = 300;
 
 interface Flight {
   index: number;
@@ -37,6 +47,7 @@ export function Writing({
   onInk: (ink: Ink) => void;
   onComplete: (index: number, word: WrittenWord) => void;
   onReopen: (index: number) => void;
+  /** Writing is over: the page has folded away around the sentences */
   onDone: () => void;
   onHome: () => void;
 }) {
@@ -59,6 +70,11 @@ export function Writing({
   const [completing, setCompleting] = useState(false);
   const [nudge, setNudge] = useState<string | null>(null);
   const [flight, setFlight] = useState<Flight | null>(null);
+  // the beat after the 15th word, then the fold; null while writing
+  const [leaving, setLeaving] = useState<"beat" | "fold" | null>(null);
+  const leaveTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const onDoneRef = useRef(onDone);
+  onDoneRef.current = onDone; // the timer fires after the 15th word is in `written`
   const guides = useRef<Guides | null>(null);
   const padSize = useRef<PadSize | null>(null);
   const padEl = useRef<HTMLDivElement>(null);
@@ -70,6 +86,21 @@ export function Writing({
 
   const count = written.filter(Boolean).length;
   const allDone = count === words.length;
+
+  // the lift: a beat with both sentences whole (skipped when coming back to a finished page),
+  // then the fold, then Making
+  const leave = useCallback(
+    (beat: boolean) => {
+      const at = beat ? BEAT_MS : 0;
+      setLeaving(beat ? "beat" : "fold");
+      leaveTimers.current.push(
+        setTimeout(() => setLeaving("fold"), at),
+        setTimeout(() => onDoneRef.current(), at + FOLD_MS),
+      );
+    },
+    [],
+  );
+  useEffect(() => () => leaveTimers.current.forEach(clearTimeout), []);
 
   // ---- a session per word
   const open = useCallback(
@@ -163,8 +194,10 @@ export function Writing({
       // the next word is ready at once, so a quick writer never loses a stroke; the pad is
       // clear because this word's ink is already flying into the sentence
       open(next);
+      // this completion brought the count to 15: no tap, the beat starts now
+      if (next === -1) leave(true);
     },
-    [active, completing, onComplete, open, paintFills, reduce, words, written],
+    [active, completing, leave, onComplete, open, paintFills, reduce, words, written],
   );
 
   const maybeAutoComplete = useCallback(() => {
@@ -266,7 +299,7 @@ export function Writing({
     complete(forceArmed.current);
   };
   const reopen = (i: number) => {
-    if (completing) return;
+    if (completing || leaving) return;
     onReopen(i);
     open(i);
   };
@@ -303,13 +336,13 @@ export function Writing({
   const text = active >= 0 ? words[active] : "";
   const chars = [...text];
   const stuck = session?.stuck ?? null;
-  let wi = 0;
+  const folding = leaving === "fold" ? " leaving" : "";
 
   return (
     <>
       <div className="topbar">
         <Logo onHome={onHome} />
-        <div className="wbar">
+        <div className={`wbar${folding}`}>
           <div className="inkmini" role="group" aria-label="Ink">
             {INKS.map((k) => (
               <button key={k.id} style={{ ["--c" as string]: k.hex }} aria-label={k.name} aria-pressed={k.id === ink.id} onClick={() => onInk(k)} />
@@ -318,35 +351,19 @@ export function Writing({
           <span className="count mono" aria-live="polite" aria-label={`${count} of ${words.length} words written`}>
             {count} / {words.length}
           </span>
-          <button className={`btn primary sm${allDone ? " ready" : ""}`} disabled={!allDone} onClick={onDone}>
-            Done
-          </button>
         </div>
       </div>
 
-      <div className="sentences" aria-label="Your two sentences">
-        {sentences.map((ws, si) => (
-          <p className="sent" key={si}>
-            {ws.map((t) => {
-              const i = wi++;
-              const w = written[i];
-              if (w)
-                return (
-                  <button key={i} className="w written" aria-label={`Rewrite “${t}”`} onClick={() => reopen(i)}>
-                    <InkWordSvg ref={(el) => void (wordRefs.current[i] = el)} strokes={w.ink.strokes} width={w.width} />
-                  </button>
-                );
-              return (
-                <span key={i} className={`w${i === active && !allDone ? " now" : ""}`}>
-                  {t}
-                </span>
-              );
-            })}
-          </p>
-        ))}
-      </div>
+      <Sentences
+        pair={pair}
+        written={written}
+        active={allDone ? -1 : active}
+        locked={!!leaving}
+        onReopen={reopen}
+        wordRef={(i, el) => void (wordRefs.current[i] = el)}
+      />
 
-      <div className="prompt-row" style={{ visibility: allDone ? "hidden" : undefined }}>
+      <div className={`prompt-row${folding}`} style={{ visibility: allDone ? "hidden" : undefined }}>
         <div className="prompt" role="group" aria-label={`Word to write: ${text}`}>
           {chars.map((ch, j) => (
             <button
@@ -377,13 +394,13 @@ export function Writing({
         </div>
       </div>
 
-      <div ref={padEl}>
+      <div ref={padEl} className={folding.trim() || undefined}>
         <Pad
           session={allDone ? null : session}
           version={version}
           disabled={completing || allDone}
           ink={ink.hex}
-          label={allDone ? "Writing area: both sentences are written" : `Writing area. Write “${text}” on the lines with a finger, a pen or a mouse.`}
+          label={allDone ? "Both sentences are written" : `Writing area. Write “${text}” on the lines with a finger, a pen or a mouse.`}
           onSize={onSize}
           onPenDown={onPenDown}
           onPenMove={onPenMove}
@@ -399,15 +416,19 @@ export function Writing({
               Write “{text}” on the lines
             </span>
           )}
-          {allDone && (
+          {allDone && !leaving && (
+            // only when coming back to a finished page: writing the 15th word never lands here
             <div className="alldone">
               <b>That’s both sentences.</b>
-              <span>Tap Done and we’ll make your font.</span>
+              <span>Tap a word to rewrite it.</span>
+              <button className="btn primary" onClick={() => leave(false)}>
+                Make my font
+              </button>
             </div>
           )}
         </Pad>
       </div>
-      <p className="wfoot">Tap a letter above to redo it. Tap a finished word to rewrite it.</p>
+      <p className={`wfoot${folding}`}>Tap a letter above to redo it. Tap a finished word to rewrite it.</p>
     </>
   );
 }

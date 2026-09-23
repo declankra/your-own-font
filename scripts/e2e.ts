@@ -1,8 +1,9 @@
 // The whole flow in a real browser, driven by real mouse input:
 // Hero → pick an ink → write all 15 words in the house hand (some letters touching, i-dots and
-// t-crossbars added at the end of the word) → Done → Making → Done → download the .otf, parse
-// it, check a–z. Runs at phone and desktop widths, with reduced motion on and off, and fails on
-// any console error.
+// t-crossbars added at the end of the word) → the 15th word starts Making by itself (a beat,
+// then each letter lifts out of its word to its slot) → Done → download the .otf, parse it,
+// check a–z. Runs at phone and desktop widths, with reduced motion on and off, and fails on any
+// console error. The desktop run also comes back to the finished page through the logo.
 //
 //   npm run e2e -- [baseUrl] [--only desktop|phone] [--fail]
 //
@@ -94,7 +95,7 @@ async function run(r: Run) {
   await sleep(900);
   const words = POOL[r.pair - 1].join(" ").split(/\s+/);
   const doneBtn = page.getByRole("button", { name: "Done", exact: true });
-  if (await doneBtn.isEnabled()) throw new Error("Done enabled before 15/15");
+  if (await doneBtn.count()) throw new Error("there is a Done button");
   let nudges = 0;
   for (let k = 0; k < words.length; k++) {
     const before = await count(page);
@@ -114,18 +115,28 @@ async function run(r: Run) {
     }
     if ((await count(page)) !== before + 1) throw new Error(`word ${k} "${prompt}" did not complete`);
     if (k === 6) await shot("2-writing");
+    if (k === words.length - 1) {
+      await page.evaluate("window.__name ??= (f) => f"); // tsx names inner functions with a helper
+      await page.evaluate(watchHandOff);
+      break;
+    }
     await sleep(350);
   }
   report.nudges = nudges;
-  await sleep(500);
-  await shot("2b-all-written");
-  if (!(await doneBtn.isEnabled())) throw new Error("Done not enabled at 15/15");
   // the written words sit at the sentence's x-height
   report.sentenceWords = await page.locator(".w.written svg").count();
 
-  const tDone = Date.now();
-  await doneBtn.click();
-  await sleep(r.reduced ? 3000 : 3200);
+  // no tap: the 15th word starts a beat with both sentences whole, then the page folds
+  await sleep(900);
+  if (await page.locator(".leaving").count()) throw new Error("the page folded before the beat was over");
+  await shot("2b-beat");
+  await page.locator(".wbar.leaving").waitFor({ timeout: 5000 });
+  await page.getByText("Making your font").waitFor({ timeout: 5000 });
+  // (?fail=build throws before the first letter can lift: the error comes at once)
+  if (r.reduced || r.fail) await sleep(r.fail ? 800 : 2600);
+  else await page.waitForFunction(() => document.querySelectorAll(".flyer").length >= 3, null, { timeout: 8000 });
+  await shot("3a-lift");
+  await sleep(r.reduced ? 1000 : 1400);
   await shot("3-making");
   if (r.fail) {
     await page.getByText("That didn’t work").waitFor({ timeout: 20000 });
@@ -134,7 +145,17 @@ async function run(r: Run) {
     await page.getByRole("button", { name: "Try again" }).click();
   }
   await page.getByText("Here’s your font.").waitFor({ timeout: 30000 });
-  report.makingMs = Date.now() - tDone;
+  const hand = (await page.evaluate(() => (window as unknown as { __handoff: HandOff }).__handoff)) as HandOff;
+  // timed in the page: from the fold (where the Done tap used to be) to "Here’s your font."
+  report.makingMs = Math.round(hand.tDone - hand.tFold);
+  report.fromLastWordMs = Math.round(hand.tDone - hand.t15);
+  report.beatMs = Math.round(hand.tFold - hand.t15);
+  report.handOff = { frames: hand.frames, maxShiftPx: +hand.maxShift.toFixed(2), minOpacity: hand.minOpacity, framesWithout: hand.missing };
+  if (hand.maxShift > 0.5 || hand.missing || hand.minOpacity < 1) throw new Error(`the sentences moved at the hand-off: ${JSON.stringify(report.handOff)}`);
+  report.flights = hand.flights.length;
+  report.liftOffsetPx = +Math.max(0, ...hand.flights).toFixed(2);
+  if (!r.reduced && !r.fail && hand.flights.length !== 26) throw new Error(`${hand.flights.length} flights, not 26`);
+  if (report.liftOffsetPx as number > 2) throw new Error(`a letter lifted ${report.liftOffsetPx}px away from its ink`);
   await page.getByRole("button", { name: "Download your font" }).waitFor();
   await page.waitForFunction(() => getComputedStyle(document.querySelector(".actions")!).opacity === "1", null, { timeout: 20000 });
   await sleep(400);
@@ -193,9 +214,94 @@ async function run(r: Run) {
   report.rewriteClosed = (await page.locator(".bsheet").count()) === 0;
   await shot("5-rewritten");
 
+  // back to the finished page through the logo: nothing starts until the person chooses
+  if (r.name === "desktop") {
+    await page.getByRole("button", { name: /home/i }).first().click();
+    await page.getByRole("button", { name: "Start writing in Ballpoint" }).click();
+    await page.getByRole("button", { name: "Make my font" }).waitFor();
+    await sleep(2500);
+    if ((await page.locator(".leaving").count()) || (await count(page)) !== words.length) throw new Error("coming back to a finished page started Making");
+    await shot("6-back");
+    await page.getByRole("button", { name: "Make my font" }).click();
+    await page.getByText("Making your font").waitFor();
+    report.backSkip = await page.getByRole("button", { name: "Skip" }).isVisible();
+    await page.getByText("Here’s your font.").waitFor({ timeout: 30000 });
+    report.back = "ok";
+  }
+
   report.consoleErrors = errors;
   await browser.close();
   return report;
+}
+
+interface HandOff {
+  frames: number;
+  maxShift: number;
+  minOpacity: number;
+  missing: number;
+  /** per flight: how far (px) the flyer's ink centre starts from the ink that left the word */
+  flights: number[];
+  /** in-page clock (ms): the 15th word is in the sentence, the page starts to fold, Done */
+  t15: number;
+  tFold: number;
+  tDone: number;
+}
+
+/**
+ * In the page, from the 15th word until the first letter lifts: every frame, where the
+ * sentences are and how opaque; then, for each flyer, whether it starts on its own letter.
+ */
+function watchHandOff() {
+  const w = window as unknown as { __handoff: HandOff };
+  const h: HandOff = { frames: 0, maxShift: 0, minOpacity: 1, missing: 0, flights: [], t15: performance.now(), tFold: 0, tDone: 0 };
+  w.__handoff = h;
+  const first = document.querySelector(".sentences")!.getBoundingClientRect();
+  const opacity = (el: Element | null) => {
+    let o = 1;
+    for (; el; el = el.parentElement) o *= Number(getComputedStyle(el).opacity);
+    return o;
+  };
+  const frame = () => {
+    if (document.querySelector(".flyer, .slot.lifted")) return;
+    const el = document.querySelector(".sentences");
+    h.frames++;
+    if (!el) h.missing++;
+    else {
+      const r = el.getBoundingClientRect();
+      h.maxShift = Math.max(h.maxShift, Math.abs(r.top - first.top), Math.abs(r.left - first.left), Math.abs(r.width - first.width));
+      h.minOpacity = Math.min(h.minOpacity, +opacity(el).toFixed(3));
+    }
+    requestAnimationFrame(frame);
+  };
+  requestAnimationFrame(frame);
+  // a flyer and the ink that left its word appear in the same commit
+  const fresh: Element[] = [];
+  const centre = (r: DOMRect) => [r.left + r.width / 2, r.top + r.height / 2];
+  new MutationObserver((ms) => {
+    const now = performance.now();
+    if (!h.tFold && document.querySelector(".wbar.leaving")) h.tFold = now;
+    if (!h.tDone && document.querySelector("h2")?.textContent === "Here’s your font.") h.tDone = now;
+    const flyers: Element[] = [];
+    for (const m of ms) {
+      if (m.type === "attributes" && (m.target as Element).classList.contains("gone")) fresh.push(m.target as Element);
+      for (const n of m.addedNodes) {
+        if (!(n instanceof Element)) continue;
+        if (n.classList.contains("flyer")) flyers.push(n);
+        if (n.matches("path.gone")) fresh.push(n);
+      }
+    }
+    for (const f of flyers) {
+      const ink = fresh.splice(0).map((p) => p.getBoundingClientRect());
+      if (!ink.length) {
+        h.flights.push(Infinity);
+        continue;
+      }
+      const u = { l: Math.min(...ink.map((r) => r.left)), t: Math.min(...ink.map((r) => r.top)), r: Math.max(...ink.map((r) => r.right)), b: Math.max(...ink.map((r) => r.bottom)) };
+      const [ax, ay] = [(u.l + u.r) / 2, (u.t + u.b) / 2];
+      const [bx, by] = centre(f.getBoundingClientRect());
+      h.flights.push(Math.hypot(ax - bx, ay - by));
+    }
+  }).observe(document.body, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ["class"] });
 }
 
 async function main() {

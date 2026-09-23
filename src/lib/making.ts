@@ -1,25 +1,31 @@
 // The Making timeline (SPEC.md §7), separate from React so it can be tested with a fake clock.
 //
-//   cast   each letter lifts in once the worker has reported its outline, then turns to type
-//   set    the row closes up once metrics exist
+//   cast   each letter lifts once the worker has reported its outline: out of its word in the
+//          sentences when they are on screen (it flies to its slot and lands), otherwise in
+//          place. It turns to type 200 ms after it lands
+//   set    what's left of the sentences folds away once z has landed; the row closes up once
+//          metrics exist
 //   ink    the roller sweeps; the step ends only when the variants are built
 //   press  the head comes down only once the .otf exists
 //
 // On the first run the whole thing takes at least `minMs` (7 s). Reduced motion: no flips,
-// roller or press; each letter fades in as it is cast, then straight to Done.
+// roller or press; each letter fades in as it is cast (and out of its word), then straight to Done.
 
 import type { BuildGate } from "./build-gate";
 
 export interface MakingUI {
   caption(text: string): void;
-  lift(i: number): void;
+  /** letter i leaves for its slot; a returned promise resolves when it has landed there */
+  lift(i: number): void | Promise<void>;
+  /** z has landed: what's left of the sentences folds away (a no-op when there are none) */
+  fold(): void;
   cast(i: number): void;
   setRow(): void;
   /** the roller's sweep; resolves when it has passed the whole row */
   roll(): Promise<void>;
   /** head down, thunk, sorts flip back as printed paper, head up */
   press(): Promise<void>;
-  /** reduced motion: letter i fades in */
+  /** reduced motion: letter i fades out of its word and into its slot */
   fadeIn(i: number): void;
 }
 
@@ -42,7 +48,15 @@ export const MIN_MS = 7000;
 export async function runMaking(
   gate: BuildGate,
   ui: MakingUI,
-  opts: { reduced: boolean; minMs: number; clock?: Clock; alive?: () => boolean; skipping?: () => boolean },
+  opts: {
+    reduced: boolean;
+    minMs: number;
+    /** before the first letter lifts: 500 ms, or less when the sentences are already on screen */
+    leadMs?: number;
+    clock?: Clock;
+    alive?: () => boolean;
+    skipping?: () => boolean;
+  },
 ): Promise<void> {
   const clock = opts.clock ?? realClock;
   const alive = opts.alive ?? (() => true);
@@ -66,6 +80,7 @@ export async function runMaking(
       ui.caption(`casting letters · ${i + 1}/26`);
       await sleep(per);
     }
+    ui.fold();
     await step(gate.set());
     ui.caption("setting the row");
     await step(gate.inked());
@@ -75,15 +90,21 @@ export async function runMaking(
     return;
   }
 
-  await sleep(500);
+  await sleep(opts.leadMs ?? 500);
+  const landed: Promise<void>[] = [];
   for (let i = 0; i < 26; i++) {
     await step(gate.glyph(i)); // the next letter waits to be cast if the work is slow
-    ui.lift(i);
+    const land = Promise.resolve(ui.lift(i));
+    landed.push(land);
     ui.caption(`casting letters · ${i + 1}/26`);
-    clock.sleep(skipping() ? 0 : 200).then(() => alive() && ui.cast(i));
+    land.then(() => clock.sleep(skipping() ? 0 : 200)).then(() => alive() && ui.cast(i));
     await sleep(125);
   }
-  await sleep(500);
+  // the flights overlap this pause, so they add no time unless one is still in the air
+  const pause = clock.sleep(skipping() ? 0 : 500);
+  await step(Promise.all(landed));
+  ui.fold();
+  await step(pause);
   await step(gate.set());
   ui.caption("setting the row");
   ui.setRow();

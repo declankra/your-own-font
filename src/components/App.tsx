@@ -1,6 +1,8 @@
 "use client";
 // The one page: hero | writing | making | done (SPEC.md §3). Strokes live in memory only;
-// reloading returns to Hero. Nothing about the session leaves the device.
+// reloading returns to Hero. Nothing about the session leaves the device. Writing and Making
+// share one screen: Making takes over with the sentences where Writing left them, so the
+// hand-off is never a fade.
 import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { INKS, type Ink } from "@/lib/config";
@@ -77,12 +79,14 @@ function Page() {
 
   const screen = phase === "making" || phase === "done" ? "foundry" : phase;
   const allWords = written.every(Boolean);
+  // the sentences Making lifts the letters out of, as they were when the page folded
+  const [page, setPage] = useState<{ pair: readonly [string, string]; written: WrittenWord[] } | null>(null);
 
   return (
     <div className="app">
       <AnimatePresence mode="wait" initial={false}>
         <motion.section
-          key={screen}
+          key={screen === "hero" ? "hero" : "page"}
           className="screen"
           aria-label={screen === "hero" ? "Start" : screen === "writing" ? "Writing" : "Your font"}
           initial={reduce ? { opacity: 0 } : { opacity: 0, y: 20 }}
@@ -110,8 +114,9 @@ function Page() {
                 onHome={() => go("hero")}
                 onDone={() => {
                   if (!allWords) return;
+                  setPage({ pair, written: written as WrittenWord[] });
                   setRuns((r) => r + 1);
-                  go("making");
+                  setPhase("making"); // no scroll reset: the sentences stay exactly where they are
                 }}
               />
             )}
@@ -120,6 +125,7 @@ function Page() {
                 words={written.filter((w): w is WrittenWord => !!w).map((w) => w.ink)}
                 ink={ink}
                 runs={runs}
+                page={page}
                 failNext={debug.fail}
                 onPhase={(p) => setPhase(p)}
                 onToast={onToast}
