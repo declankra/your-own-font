@@ -5,6 +5,7 @@ import { parse } from "opentype.js";
 import { beforeAll, describe, expect, test } from "vitest";
 import { altSequence, buildFont } from "../src/font/build.ts";
 import { contourBounds, glyphContours, unionOutlines } from "../src/font/outline.ts";
+import { chooseVariants, letterSamples, scoreSamples } from "../src/font/samples.ts";
 import type { BuildEvent, BuildResult, WordInk } from "../src/font/types.ts";
 import { HOUSE_BASELINE, HOUSE_XH, synthWord } from "../src/house-hand.ts";
 import { LetterModel } from "../src/letter-model/model.ts";
@@ -54,9 +55,10 @@ describe("segmentation on the sentence pair", () => {
 
 describe("buildFont", () => {
   let result: BuildResult;
+  let words: WordInk[];
   const events: BuildEvent[] = [];
   beforeAll(async () => {
-    const { words } = writeWords({ gap: 6, lateMarks: true, jitter: 0.4 });
+    words = writeWords({ gap: 6, lateMarks: true, jitter: 0.4 }).words;
     result = await buildFont({ words, id: "TEST01" }, { model, onEvent: (e) => events.push(e) });
   });
 
@@ -96,6 +98,33 @@ describe("buildFont", () => {
     expect(bb("i").y2).toBeGreaterThan(620);
     // the crossbar makes the t wider than its stem
     expect(bb("t").x2 - bb("t").x1).toBeGreaterThan(220);
+  });
+
+  test("each glyph knows the written letter it was cut from: the sample the font uses", () => {
+    // what the font chose, worked out independently of the build
+    const samples = letterSamples(words);
+    scoreSamples(samples, model);
+    const { chosen } = chooseVariants(samples);
+    const glyphs = (events.filter((e) => e.type === "glyph") as Extract<BuildEvent, { type: "glyph" }>[]).map((e) => e.glyph);
+    for (const g of [...glyphs, ...result.glyphs.filter((x) => !x.derived)]) {
+      const from = g.from!;
+      expect(from, g.name).toBeDefined();
+      expect([...words[from.word].text][from.letter], g.name).toBe(g.char);
+      const want = chosen.get(g.char)![g.variant];
+      expect([want.word, want.letter], g.name).toEqual([from.word, from.letter]);
+      // the glyph's strokes, shifted back by dx, are that letter's ink in the word
+      expect(g.strokes.length, g.name).toBe(want.strokes.length);
+      g.strokes.forEach((st, k) => {
+        expect(st.points.length, g.name).toBe(want.strokes[k].points.length);
+        st.points.forEach(([x, y], q) => {
+          expect(Math.abs(x - from.dx - want.strokes[k].points[q][0]), g.name).toBeLessThan(1e-6);
+          expect(y, g.name).toBe(want.strokes[k].points[q][1]);
+        });
+      });
+    }
+    // some letter's default is not its first written sample, so "first written" would be wrong
+    expect(glyphs.some((g) => samples.find((s) => s.char === g.char)!.word !== g.from!.word || samples.find((s) => s.char === g.char)!.letter !== g.from!.letter)).toBe(true);
+    for (const g of result.glyphs.filter((x) => x.derived)) expect(g.from, g.name).toBeUndefined();
   });
 
   test("glyph outlines keep the shape: the o is one ring with a counter", () => {

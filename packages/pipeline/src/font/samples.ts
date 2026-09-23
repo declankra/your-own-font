@@ -19,7 +19,7 @@ export function letterSamples(words: WordInk[]): LetterSample[] {
         points: w.strokes[p.stroke].points.slice(p.a, p.b + 1).map((pt) => [...pt] as InkStroke["points"][number]),
         pen: w.strokes[p.stroke].pen,
       }));
-      out.push({ char: chars[j], strokes, word: wi, score: NaN });
+      out.push({ char: chars[j], strokes, word: wi, letter: j, score: NaN });
     });
   });
   return out;

@@ -41,6 +41,8 @@ export interface LetterSample {
   strokes: InkStroke[];
   /** index of the word it came from (-1 for a rewritten letter) */
   word: number;
+  /** index of the letter within that word's text (-1 for a rewritten letter) */
+  letter: number;
   /** model log P(char) for this sample; NaN when no model was given */
   score: number;
 }
@@ -66,6 +68,12 @@ export interface BuiltGlyph {
   strokes: InkStroke[];
   /** true when made by the pipeline rather than written: capitals, and ' from a comma */
   derived: boolean;
+  /**
+   * The written letter this glyph was cut from, for lifting it out of its word on screen:
+   * `strokes` shifted left by `dx` are exactly that letter's ink in the word's own coordinates
+   * (`WordInk`). Absent for derived glyphs and rewritten letters.
+   */
+  from?: { word: number; letter: number; dx: number };
 }
 
 export type BuildStage = "cast" | "set" | "ink" | "press";

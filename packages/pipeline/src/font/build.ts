@@ -49,6 +49,7 @@ interface Made {
   contours: Contour[]; // sample coordinates, y down
   strokes: InkStroke[]; // sample coordinates
   derived: boolean;
+  from: { word: number; letter: number } | null; // the written letter, when there is one
   // filled by the set stage
   advance?: number;
   dx?: number;
@@ -85,7 +86,7 @@ export async function buildFont(input: BuildInput, opts: BuildOptions = {}): Pro
   for (const [ch, strokes] of Object.entries(input.overrides ?? {})) {
     if (!strokes.length) continue;
     samples = samples.filter((s) => s.char !== ch);
-    samples.push({ char: ch, strokes, word: -1, score: NaN });
+    samples.push({ char: ch, strokes, word: -1, letter: -1, score: NaN });
   }
   scoreSamples(samples, opts.model ?? null);
   const { chosen, dropped } = chooseVariants(samples);
@@ -106,6 +107,7 @@ export async function buildFont(input: BuildInput, opts: BuildOptions = {}): Pro
       contours,
       strokes: sample.strokes,
       derived: false,
+      from: sample.word >= 0 ? { word: sample.word, letter: sample.letter } : null,
     };
     made.push(m);
     return m;
@@ -157,7 +159,7 @@ export async function buildFont(input: BuildInput, opts: BuildOptions = {}): Pro
     const contours = glyphContours(strokes);
     if (!contours.length) continue;
     const up = ch.toUpperCase();
-    const m: Made = { char: up, name: up, variant: 0, unicodes: [up.codePointAt(0)!], contours, strokes, derived: true };
+    const m: Made = { char: up, name: up, variant: 0, unicodes: [up.codePointAt(0)!], contours, strokes, derived: true, from: null };
     place(m);
     made.push(m);
   }
@@ -169,7 +171,7 @@ export async function buildFont(input: BuildInput, opts: BuildOptions = {}): Pro
       const strokes = scaleStrokes(comma.strokes, 1, -800 - inkTop(comma.strokes));
       const contours = glyphContours(strokes);
       if (contours.length) {
-        const m: Made = { char: "'", name: "quotesingle", variant: 0, unicodes: [0x27, 0x2019], contours, strokes, derived: true };
+        const m: Made = { char: "'", name: "quotesingle", variant: 0, unicodes: [0x27, 0x2019], contours, strokes, derived: true, from: null };
         place(m);
         made.push(m);
       }
@@ -210,6 +212,7 @@ function preview(m: Made): BuiltGlyph {
     bounds: contourBounds(contours),
     strokes: m.strokes.map((st) => ({ pen: st.pen, points: st.points.map(([x, y, p, t]) => [x + dx!, y, p, t] as [number, number, number, number]) })),
     derived: m.derived,
+    ...(m.from ? { from: { ...m.from, dx: dx! } } : {}),
   };
 }
 
