@@ -1,0 +1,908 @@
+{
+ "model": {
+  "arch": [
+   "conv3x3/2 1→16",
+   "conv3x3/2 16→16 dw",
+   "conv1x1/1 16→32",
+   "conv3x3/2 32→32 dw",
+   "conv1x1/1 32→48",
+   "flatten",
+   "scalars",
+   "dense",
+   "dense"
+  ],
+  "weights": 66800,
+  "bytes": 138080,
+  "gzipBytes": 126903,
+  "trainingDataHash": "ab9729ef91981060",
+  "segmenter": {
+   "wWidth": 1,
+   "wVert": 0.6,
+   "wGap": 15,
+   "wCount": 0.2,
+   "cutCost": 6,
+   "wGeoInModel": 0.5,
+   "partialCap": 1.5,
+   "partialLetterBonus": 10,
+   "geoCutCost": 5
+  }
+ },
+ "classifier": {
+  "top1": {
+   "all held-out": {
+    "top1": 93.49,
+    "n": 2626
+   },
+   "UJI writers (real, stylus)": {
+    "top1": 91.8,
+    "n": 1488
+   },
+   "Omniglot drawers (real, mouse)": {
+    "top1": 95.19,
+    "n": 208
+   },
+   "font styles (synthetic)": {
+    "top1": 95.81,
+    "n": 930
+   }
+  },
+  "top1LettersOnly": 95.2,
+  "confusions": [
+   [
+    [
+     "n",
+     "m"
+    ],
+    9
+   ],
+   [
+    [
+     "i",
+     "∅"
+    ],
+    8
+   ],
+   [
+    [
+     "v",
+     "∅"
+    ],
+    7
+   ],
+   [
+    [
+     "l",
+     "∅"
+    ],
+    7
+   ],
+   [
+    [
+     "x",
+     "∅"
+    ],
+    5
+   ],
+   [
+    [
+     "y",
+     "g"
+    ],
+    4
+   ],
+   [
+    [
+     "?",
+     "!"
+    ],
+    4
+   ],
+   [
+    [
+     "c",
+     "∅"
+    ],
+    4
+   ],
+   [
+    [
+     "t",
+     "b"
+    ],
+    4
+   ],
+   [
+    [
+     "r",
+     "n"
+    ],
+    4
+   ],
+   [
+    [
+     "s",
+     "∅"
+    ],
+    4
+   ],
+   [
+    [
+     "n",
+     "r"
+    ],
+    3
+   ]
+  ],
+  "null": {
+   "negatives that are not letter-shaped": {
+    "recall": 87.24,
+    "precision": 98.95,
+    "n": 7110
+   },
+   "negatives, only confident lookalikes excluded": {
+    "recall": 83.94,
+    "precision": 98.97,
+    "n": 7548
+   },
+   "negatives, all (the spec's four types as generated)": {
+    "recall": 79.3,
+    "precision": 98.97,
+    "n": 8000
+   },
+   "by type (not letter-shaped)": {
+    "cut": {
+     "recall": 83.73,
+     "precision": 95.08,
+     "n": 1524,
+     "excluded share": 14.48
+    },
+    "fragment": {
+     "recall": 88.01,
+     "precision": 96.14,
+     "n": 1869,
+     "excluded share": 4.69
+    },
+    "merged": {
+     "recall": 98.32,
+     "precision": 96.89,
+     "n": 2088,
+     "excluded share": 1.09
+    },
+    "missing": {
+     "recall": 75.45,
+     "precision": 94.9,
+     "n": 1629,
+     "excluded share": 24.09
+    }
+   },
+   "real letters called ∅": 2.51
+  },
+  "frontier": [
+   {
+    "extraMargin": -2.0,
+    "top1": 87.97,
+    "nullRecall": 97.58,
+    "nullPrecision": 96.5
+   },
+   {
+    "extraMargin": -1.75,
+    "top1": 89.07,
+    "nullRecall": 96.67,
+    "nullPrecision": 96.95
+   },
+   {
+    "extraMargin": -1.5,
+    "top1": 90.18,
+    "nullRecall": 95.68,
+    "nullPrecision": 97.37
+   },
+   {
+    "extraMargin": -1.25,
+    "top1": 90.59,
+    "nullRecall": 94.61,
+    "nullPrecision": 97.59
+   },
+   {
+    "extraMargin": -1.0,
+    "top1": 91.28,
+    "nullRecall": 93.66,
+    "nullPrecision": 97.88
+   },
+   {
+    "extraMargin": -0.75,
+    "top1": 91.81,
+    "nullRecall": 92.63,
+    "nullPrecision": 98.08
+   },
+   {
+    "extraMargin": -0.5,
+    "top1": 92.5,
+    "nullRecall": 91.03,
+    "nullPrecision": 98.45
+   },
+   {
+    "extraMargin": -0.25,
+    "top1": 92.99,
+    "nullRecall": 89.25,
+    "nullPrecision": 98.71
+   },
+   {
+    "extraMargin": 0.0,
+    "top1": 93.49,
+    "nullRecall": 87.24,
+    "nullPrecision": 98.95
+   },
+   {
+    "extraMargin": 0.25,
+    "top1": 93.87,
+    "nullRecall": 84.85,
+    "nullPrecision": 99.15
+   },
+   {
+    "extraMargin": 0.5,
+    "top1": 94.21,
+    "nullRecall": 82.66,
+    "nullPrecision": 99.29
+   },
+   {
+    "extraMargin": 0.75,
+    "top1": 94.25,
+    "nullRecall": 79.89,
+    "nullPrecision": 99.34
+   },
+   {
+    "extraMargin": 1.0,
+    "top1": 94.55,
+    "nullRecall": 77.03,
+    "nullPrecision": 99.47
+   },
+   {
+    "extraMargin": 1.25,
+    "top1": 94.63,
+    "nullRecall": 73.5,
+    "nullPrecision": 99.56
+   },
+   {
+    "extraMargin": 1.5,
+    "top1": 94.78,
+    "nullRecall": 70.52,
+    "nullPrecision": 99.62
+   },
+   {
+    "extraMargin": 1.75,
+    "top1": 94.94,
+    "nullRecall": 66.91,
+    "nullPrecision": 99.75
+   },
+   {
+    "extraMargin": 2.0,
+    "top1": 95.13,
+    "nullRecall": 63.16,
+    "nullPrecision": 99.84
+   },
+   {
+    "extraMargin": 2.25,
+    "top1": 95.16,
+    "nullRecall": 59.04,
+    "nullPrecision": 99.88
+   },
+   {
+    "extraMargin": 2.5,
+    "top1": 95.16,
+    "nullRecall": 54.74,
+    "nullPrecision": 99.87
+   },
+   {
+    "extraMargin": 2.75,
+    "top1": 95.16,
+    "nullRecall": 50.66,
+    "nullPrecision": 99.92
+   },
+   {
+    "extraMargin": 3.0,
+    "top1": 95.16,
+    "nullRecall": 45.89,
+    "nullPrecision": 99.91
+   }
+  ],
+  "positives": 2626,
+  "negatives": 8000
+ },
+ "segmentation_words_test": {
+  "summary": {
+   "model": {
+    "all": {
+     "letterExact": 94.89,
+     "letters": 7008,
+     "wordExact": 91.16,
+     "words": 1764,
+     "unresolvedWords": 81
+    },
+    "touching": {
+     "letterExact": 91.74,
+     "letters": 2336,
+     "wordExact": 85.37,
+     "words": 588,
+     "unresolvedWords": 36
+    },
+    "tight": {
+     "letterExact": 95.12,
+     "letters": 2336,
+     "wordExact": 91.67,
+     "words": 588,
+     "unresolvedWords": 29
+    },
+    "wide": {
+     "letterExact": 97.82,
+     "letters": 2336,
+     "wordExact": 96.43,
+     "words": 588,
+     "unresolvedWords": 16
+    },
+    "runOn": {
+     "letterExact": 79.53,
+     "letters": 1373,
+     "wordExact": 62.26,
+     "words": 318,
+     "unresolvedWords": 53
+    },
+    "lateDotsBars": {
+     "letterExact": 94.37,
+     "letters": 2470,
+     "wordExact": 90.06,
+     "words": 624,
+     "unresolvedWords": 29
+    },
+    "uji": {
+     "letterExact": 94.51,
+     "letters": 4320,
+     "wordExact": 90.09,
+     "words": 1080,
+     "unresolvedWords": 55
+    },
+    "fonts": {
+     "letterExact": 95.83,
+     "letters": 2160,
+     "wordExact": 93.15,
+     "words": 540,
+     "unresolvedWords": 19
+    },
+    "omniglot": {
+     "letterExact": 94.13,
+     "letters": 528,
+     "wordExact": 91.67,
+     "words": 144,
+     "unresolvedWords": 7
+    }
+   },
+   "geometry": {
+    "all": {
+     "letterExact": 89.58,
+     "letters": 7008,
+     "wordExact": 82.54,
+     "words": 1764,
+     "unresolvedWords": 102
+    },
+    "touching": {
+     "letterExact": 86.3,
+     "letters": 2336,
+     "wordExact": 76.87,
+     "words": 588,
+     "unresolvedWords": 35
+    },
+    "tight": {
+     "letterExact": 88.31,
+     "letters": 2336,
+     "wordExact": 80.44,
+     "words": 588,
+     "unresolvedWords": 31
+    },
+    "wide": {
+     "letterExact": 94.14,
+     "letters": 2336,
+     "wordExact": 90.31,
+     "words": 588,
+     "unresolvedWords": 36
+    },
+    "runOn": {
+     "letterExact": 71.38,
+     "letters": 1373,
+     "wordExact": 48.74,
+     "words": 318,
+     "unresolvedWords": 38
+    },
+    "lateDotsBars": {
+     "letterExact": 88.38,
+     "letters": 2470,
+     "wordExact": 80.13,
+     "words": 624,
+     "unresolvedWords": 29
+    },
+    "uji": {
+     "letterExact": 90.37,
+     "letters": 4320,
+     "wordExact": 82.96,
+     "words": 1080,
+     "unresolvedWords": 71
+    },
+    "fonts": {
+     "letterExact": 88.94,
+     "letters": 2160,
+     "wordExact": 82.59,
+     "words": 540,
+     "unresolvedWords": 29
+    },
+    "omniglot": {
+     "letterExact": 85.8,
+     "letters": 528,
+     "wordExact": 79.17,
+     "words": 144,
+     "unresolvedWords": 2
+    }
+   },
+   "live": {
+    "all": {
+     "letterExact": 42.68,
+     "letters": 7008,
+     "wordExact": 32.6,
+     "words": 1764,
+     "unresolvedWords": 0
+    },
+    "touching": {
+     "letterExact": 20.25,
+     "letters": 2336,
+     "wordExact": 11.73,
+     "words": 588,
+     "unresolvedWords": 0
+    },
+    "tight": {
+     "letterExact": 39.85,
+     "letters": 2336,
+     "wordExact": 28.91,
+     "words": 588,
+     "unresolvedWords": 0
+    },
+    "wide": {
+     "letterExact": 67.94,
+     "letters": 2336,
+     "wordExact": 57.14,
+     "words": 588,
+     "unresolvedWords": 0
+    },
+    "runOn": {
+     "letterExact": 16.82,
+     "letters": 1373,
+     "wordExact": 0,
+     "words": 318,
+     "unresolvedWords": 0
+    },
+    "lateDotsBars": {
+     "letterExact": 38.46,
+     "letters": 2470,
+     "wordExact": 25.48,
+     "words": 624,
+     "unresolvedWords": 0
+    },
+    "uji": {
+     "letterExact": 43.7,
+     "letters": 4320,
+     "wordExact": 33.06,
+     "words": 1080,
+     "unresolvedWords": 0
+    },
+    "fonts": {
+     "letterExact": 40.69,
+     "letters": 2160,
+     "wordExact": 31.11,
+     "words": 540,
+     "unresolvedWords": 0
+    },
+    "omniglot": {
+     "letterExact": 42.42,
+     "letters": 528,
+     "wordExact": 34.72,
+     "words": 144,
+     "unresolvedWords": 0
+    }
+   }
+  },
+  "incremental": {
+   "model": 95.39,
+   "geometry": 82.72,
+   "steps": 8908
+  },
+  "nodeSolveMs": {
+   "p50": 1.77337499999976,
+   "p95": 4.2893749999993815
+  }
+ },
+ "segmentation_words_test_extra": {
+  "summary": {
+   "model": {
+    "all": {
+     "letterExact": 93.77,
+     "letters": 8979,
+     "wordExact": 89.21,
+     "words": 2216,
+     "unresolvedWords": 107
+    },
+    "touching": {
+     "letterExact": 91.3,
+     "letters": 2919,
+     "wordExact": 85.5,
+     "words": 738,
+     "unresolvedWords": 47
+    },
+    "tight": {
+     "letterExact": 92.87,
+     "letters": 3045,
+     "wordExact": 87.42,
+     "words": 739,
+     "unresolvedWords": 38
+    },
+    "wide": {
+     "letterExact": 97.08,
+     "letters": 3015,
+     "wordExact": 94.72,
+     "words": 739,
+     "unresolvedWords": 22
+    },
+    "runOn": {
+     "letterExact": 73.47,
+     "letters": 1783,
+     "wordExact": 53.43,
+     "words": 423,
+     "unresolvedWords": 72
+    },
+    "lateDotsBars": {
+     "letterExact": 93.03,
+     "letters": 3158,
+     "wordExact": 87.64,
+     "words": 785,
+     "unresolvedWords": 35
+    },
+    "uji": {
+     "letterExact": 93.86,
+     "letters": 5832,
+     "wordExact": 89.1,
+     "words": 1440,
+     "unresolvedWords": 69
+    },
+    "fonts": {
+     "letterExact": 94.24,
+     "letters": 2187,
+     "wordExact": 90.74,
+     "words": 540,
+     "unresolvedWords": 22
+    },
+    "omniglot": {
+     "letterExact": 92.19,
+     "letters": 960,
+     "wordExact": 86.44,
+     "words": 236,
+     "unresolvedWords": 16
+    }
+   },
+   "geometry": {
+    "all": {
+     "letterExact": 88.7,
+     "letters": 8979,
+     "wordExact": 81.23,
+     "words": 2216,
+     "unresolvedWords": 36
+    },
+    "touching": {
+     "letterExact": 85.82,
+     "letters": 2919,
+     "wordExact": 76.83,
+     "words": 738,
+     "unresolvedWords": 19
+    },
+    "tight": {
+     "letterExact": 87.85,
+     "letters": 3045,
+     "wordExact": 79.3,
+     "words": 739,
+     "unresolvedWords": 14
+    },
+    "wide": {
+     "letterExact": 92.34,
+     "letters": 3015,
+     "wordExact": 87.55,
+     "words": 739,
+     "unresolvedWords": 3
+    },
+    "runOn": {
+     "letterExact": 64.39,
+     "letters": 1783,
+     "wordExact": 39.72,
+     "words": 423,
+     "unresolvedWords": 29
+    },
+    "lateDotsBars": {
+     "letterExact": 87.78,
+     "letters": 3158,
+     "wordExact": 79.62,
+     "words": 785,
+     "unresolvedWords": 10
+    },
+    "uji": {
+     "letterExact": 89.95,
+     "letters": 5832,
+     "wordExact": 83.19,
+     "words": 1440,
+     "unresolvedWords": 17
+    },
+    "fonts": {
+     "letterExact": 89.21,
+     "letters": 2187,
+     "wordExact": 82.22,
+     "words": 540,
+     "unresolvedWords": 17
+    },
+    "omniglot": {
+     "letterExact": 79.9,
+     "letters": 960,
+     "wordExact": 66.95,
+     "words": 236,
+     "unresolvedWords": 2
+    }
+   },
+   "live": {
+    "all": {
+     "letterExact": 44.8,
+     "letters": 8979,
+     "wordExact": 34.61,
+     "words": 2216,
+     "unresolvedWords": 0
+    },
+    "touching": {
+     "letterExact": 23.09,
+     "letters": 2919,
+     "wordExact": 12.74,
+     "words": 738,
+     "unresolvedWords": 0
+    },
+    "tight": {
+     "letterExact": 40.62,
+     "letters": 3045,
+     "wordExact": 29.77,
+     "words": 739,
+     "unresolvedWords": 0
+    },
+    "wide": {
+     "letterExact": 70.05,
+     "letters": 3015,
+     "wordExact": 61.3,
+     "words": 739,
+     "unresolvedWords": 0
+    },
+    "runOn": {
+     "letterExact": 12.9,
+     "letters": 1783,
+     "wordExact": 0,
+     "words": 423,
+     "unresolvedWords": 0
+    },
+    "lateDotsBars": {
+     "letterExact": 40.28,
+     "letters": 3158,
+     "wordExact": 27.39,
+     "words": 785,
+     "unresolvedWords": 0
+    },
+    "uji": {
+     "letterExact": 45.39,
+     "letters": 5832,
+     "wordExact": 34.72,
+     "words": 1440,
+     "unresolvedWords": 0
+    },
+    "fonts": {
+     "letterExact": 45.04,
+     "letters": 2187,
+     "wordExact": 36.3,
+     "words": 540,
+     "unresolvedWords": 0
+    },
+    "omniglot": {
+     "letterExact": 40.73,
+     "letters": 960,
+     "wordExact": 30.08,
+     "words": 236,
+     "unresolvedWords": 0
+    }
+   }
+  },
+  "incremental": {
+   "model": null,
+   "geometry": null,
+   "steps": 0
+  },
+  "nodeSolveMs": {
+   "p50": 2.0982500000000073,
+   "p95": 4.413708999999471
+  }
+ },
+ "segmentationFailures": 156,
+ "collectE2E": [
+  "lib: letter model loaded · 32 classes",
+  "fix: \"quick,\": proposal [[[],[0]],[[],[0]],[[],[1]],[[42],[2,3]],[[],[2]],[[],[3]],[[],[4]],[[],[5]]]; cut removed (cuts left 0); re-cut and dragged: [[[],[0]],[[],[0]],[[],[1]],[[44],[2,3]],[[],[2]],[[],[3]],[[],[4]],[[],[5]]]",
+  "saved: Saved wa164l-2026-09-22.json · 18 words · valid -> wa164l-2026-09-22.json",
+  "schema: valid; structure: valid",
+  "page errors: none"
+ ],
+ "bench": {
+  "chromium": {
+   "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+   "words": 175,
+   "passes": 3,
+   "modelLoadMs": 4.900000095367432,
+   "perCandidateMs": {
+    "n": 525,
+    "mean": 0.09909121113361219,
+    "p50": 0.09828571455819266,
+    "p95": 0.11222222248713175,
+    "max": 0.13000000052981905
+   },
+   "coldResolveMs": {
+    "n": 525,
+    "mean": 2.027619046256656,
+    "p50": 2,
+    "p95": 4.399999976158142,
+    "max": 5.299999952316284
+   },
+   "coldCandidates": {
+    "n": 525,
+    "mean": 19.931428571428572,
+    "p50": 19,
+    "p95": 43,
+    "max": 52
+   },
+   "coldGeometryMs": {
+    "n": 525,
+    "mean": 0.06895238195146833,
+    "p50": 0.09999990463256836,
+    "p95": 0.20000004768371582,
+    "max": 0.3999999761581421
+   },
+   "penUpResolveMs": {
+    "n": 2691,
+    "mean": 0.5098476396622333,
+    "p50": 0.3999999761581421,
+    "p95": 1.2000000476837158,
+    "max": 3.399999976158142
+   },
+   "penUpNewCandidates": {
+    "n": 2691,
+    "mean": 4.729096989966555,
+    "p50": 4,
+    "p95": 12,
+    "max": 32
+   },
+   "penUpGeometryMs": {
+    "n": 2691,
+    "mean": 0.04481605325477002,
+    "p50": 0,
+    "p95": 0.19999992847442627,
+    "max": 0.5
+   },
+   "totalMs": 9118,
+   "clockMs": 0.1
+  },
+  "chromium_4x": {
+   "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+   "words": 175,
+   "passes": 3,
+   "modelLoadMs": 16.700000047683716,
+   "perCandidateMs": {
+    "n": 525,
+    "mean": 0.4308574475785123,
+    "p50": 0.4269230769230769,
+    "p95": 0.48799999952316286,
+    "max": 0.5555555555555556
+   },
+   "coldResolveMs": {
+    "n": 525,
+    "mean": 9.110095234371366,
+    "p50": 9,
+    "p95": 19.299999952316284,
+    "max": 24.700000047683716
+   },
+   "coldCandidates": {
+    "n": 525,
+    "mean": 19.931428571428572,
+    "p50": 19,
+    "p95": 43,
+    "max": 52
+   },
+   "coldGeometryMs": {
+    "n": 525,
+    "mean": 0.3139047638575236,
+    "p50": 0.10000002384185791,
+    "p95": 0.9000000953674316,
+    "max": 3.8000000715255737
+   },
+   "penUpResolveMs": {
+    "n": 2691,
+    "mean": 2.261984392241978,
+    "p50": 1.899999976158142,
+    "p95": 5.300000071525574,
+    "max": 16.5
+   },
+   "penUpNewCandidates": {
+    "n": 2691,
+    "mean": 4.729096989966555,
+    "p50": 4,
+    "p95": 12,
+    "max": 32
+   },
+   "penUpGeometryMs": {
+    "n": 2691,
+    "mean": 0.22408026800152095,
+    "p50": 0.10000002384185791,
+    "p95": 0.8000000715255737,
+    "max": 1.7000000476837158
+   },
+   "totalMs": 39198.90000009537,
+   "clockMs": 0.1
+  },
+  "webkit": {
+   "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.5 Safari/605.1.15",
+   "words": 175,
+   "passes": 3,
+   "modelLoadMs": 14,
+   "perCandidateMs": {
+    "n": 525,
+    "mean": 0.07116208072226371,
+    "p50": 0.07058823529411765,
+    "p95": 0.08571428571428572,
+    "max": 0.1
+   },
+   "coldResolveMs": {
+    "n": 525,
+    "mean": 1.4247619047619047,
+    "p50": 1,
+    "p95": 3,
+    "max": 4
+   },
+   "coldCandidates": {
+    "n": 525,
+    "mean": 19.931428571428572,
+    "p50": 19,
+    "p95": 43,
+    "max": 52
+   },
+   "coldGeometryMs": {
+    "n": 525,
+    "mean": 0.06095238095238095,
+    "p50": 0,
+    "p95": 1,
+    "max": 1
+   },
+   "penUpResolveMs": {
+    "n": 2691,
+    "mean": 0.37755481233742105,
+    "p50": 0,
+    "p95": 1,
+    "max": 2
+   },
+   "penUpNewCandidates": {
+    "n": 2691,
+    "mean": 4.729096989966555,
+    "p50": 4,
+    "p95": 12,
+    "max": 32
+   },
+   "penUpGeometryMs": {
+    "n": 2691,
+    "mean": 0.03641768859160163,
+    "p50": 0,
+    "p95": 0,
+    "max": 1
+   },
+   "totalMs": 6728,
+   "clockMs": 1
+  }
+ }
+}

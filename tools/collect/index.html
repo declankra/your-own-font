@@ -1,0 +1,320 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Handwriting collection</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400..800&family=DM+Mono:wght@400;500&display=swap">
+<!--
+  Collection tool for the letter model (docs/letter-model.md §5). Runs from file://, no
+  server, nothing is uploaded: the session is saved as one JSON file through a download.
+  Needs lib.js next to it (built by `npm run build:tools` in packages/pipeline).
+
+  OWNER: the consent line below is the wording proposed in docs/letter-model.md §5 and still
+  needs your approval (§8) before this page goes to volunteers.
+-->
+<style>
+:root{color-scheme:light;--paper:#FFFEFB;--tissue:#F5F3EE;--sheet:#FFFFFF;--graphite:#1F1E1C;--muted:#6F6A63;--faint:#D3CEC6;--rule:#EBE7E0;
+  --guide:#C9D6F7;--ink:#2446F5;--tomato:#FF5B3A;--hl:#FFE14D;
+  --sans:"Figtree",ui-rounded,system-ui,-apple-system,"Segoe UI",sans-serif;--mono:"DM Mono",ui-monospace,"SF Mono",Menlo,monospace;
+  --ease:cubic-bezier(.3,1.35,.5,1)}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{margin:0;background:var(--paper);color:var(--graphite);font:450 17px/1.5 var(--sans);-webkit-font-smoothing:antialiased;overscroll-behavior:none}
+button,input{font:inherit;color:inherit}
+:focus-visible{outline:2.5px solid var(--ink);outline-offset:3px;border-radius:8px}
+.app{max-width:1000px;margin:0 auto;padding:0 16px 40px;min-height:100%;display:flex;flex-direction:column}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:64px}
+.logo{font-weight:760;letter-spacing:-.035em;font-size:18px}
+.mono{font:500 12.5px/1.4 var(--mono);letter-spacing:.02em;color:var(--muted)}
+h1{font-weight:740;letter-spacing:-.04em;line-height:1.05;font-size:clamp(32px,6vw,52px);margin:24px 0 12px}
+p{margin:0 0 12px}
+.muted{color:var(--muted)}
+.btn{height:48px;padding:0 24px;border-radius:999px;border:0;cursor:pointer;font-weight:620;font-size:16px;display:inline-flex;align-items:center;gap:8px;transition:transform .25s var(--ease),background-color .2s}
+.btn:active:not(:disabled){transform:scale(.95)}
+.btn.primary{background:var(--ink);color:#fff}
+.btn.soft{background:var(--tissue)}
+.btn.on{background:var(--graphite);color:#fff}
+.btn:disabled{background:var(--tissue);color:var(--faint);cursor:default}
+.btn.sm{height:40px;padding:0 16px;font-size:15px}
+.field{display:grid;gap:4px;margin:10px 0;max-width:420px}
+.field input[type=text]{height:44px;border:1px solid var(--faint);border-radius:12px;padding:0 12px;background:#fff}
+.consent{background:var(--sheet);border-radius:6px;padding:16px 18px;box-shadow:0 1px 2px rgb(31 30 28/.06),0 8px 16px -8px rgb(31 30 28/.1);max-width:560px;margin:18px 0}
+.consent label{display:flex;gap:10px;align-items:flex-start;margin-top:10px}
+.consent input{width:20px;height:20px;margin-top:3px;accent-color:var(--ink)}
+.prompt-row{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-top:18px}
+.prompt{display:flex;flex-wrap:wrap;font:760 clamp(44px,8vw,80px)/1.1 var(--sans);letter-spacing:-.03em}
+.pl{position:relative;color:var(--faint);padding:0 .01em;--f:0}
+.pl .pf{position:absolute;inset:0;color:var(--ink);clip-path:inset(calc((1 - var(--f)) * 100%) 0 0 0);transition:clip-path 120ms linear}
+.tools{display:flex;gap:8px;flex-wrap:wrap}
+.pad{position:relative;height:clamp(230px,36vh,340px);margin-top:8px;touch-action:none;user-select:none;-webkit-user-select:none}
+.pad svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.guide{stroke:var(--guide);stroke-width:1.25;fill:none;vector-effect:non-scaling-stroke}
+.guide.dash{stroke-dasharray:5 6}
+.inkg{fill:var(--ink)}
+.hint{color:var(--muted);font-size:14.5px;margin-top:6px}
+.review{position:relative;background:var(--sheet);border-radius:6px;box-shadow:0 1px 2px rgb(31 30 28/.06),0 8px 16px -8px rgb(31 30 28/.12);margin-top:14px;touch-action:none;user-select:none;-webkit-user-select:none}
+.review svg{display:block;width:100%;height:clamp(220px,40vh,380px)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.chip{min-width:48px;height:48px;border-radius:12px;border:2px solid transparent;background:var(--tissue);font:700 24px/1 var(--sans);cursor:pointer;display:grid;place-items:center;padding:0 10px;color:var(--c)}
+.chip[aria-pressed=true]{border-color:var(--c);background:#fff;box-shadow:0 4px 10px -6px var(--c)}
+.chip.empty{outline:2px dashed var(--tomato);outline-offset:2px}
+.warn{color:var(--tomato);font-weight:560;min-height:1.5em;margin-top:8px}
+.bar{display:flex;gap:8px;flex-wrap:wrap;justify-content:space-between;align-items:center;margin-top:14px}
+.progress{height:4px;background:var(--tissue);border-radius:4px;overflow:hidden;margin:6px 0 0}
+.progress i{display:block;height:100%;background:var(--ink);width:0;transition:width .3s}
+pre.err{white-space:pre-wrap;color:var(--tomato);font:500 13px/1.5 var(--mono)}
+</style>
+
+<div class="app">
+  <div class="topbar"><span class="logo">your own font · collect</span><span class="mono" id="count"></span></div>
+  <div class="progress" aria-hidden="true"><i id="bar"></i></div>
+
+  <!-- 1. start -->
+  <section id="s-start">
+    <h1>Help teach the pen.</h1>
+    <p class="muted">You'll write 18 short words, one at a time, with your finger, a stylus or a mouse. After each word we'll show which strokes we think make each letter. Fix anything that's wrong, then move on. It takes about five minutes.</p>
+    <div class="consent">
+      <strong>Before you start</strong>
+      <p class="muted" style="margin-top:6px" id="consent-text">Your handwriting will be used to train an open-source model and may be published with it.</p>
+      <label><input type="checkbox" id="agree"> <span>I agree</span></label>
+    </div>
+    <div class="field"><span class="mono">Writer ID (keep it anonymous)</span><input type="text" id="writer" autocomplete="off"></div>
+    <div class="field"><span class="mono">Device</span><input type="text" id="device" autocomplete="off"></div>
+    <p><button class="btn primary" id="start" disabled>Start writing</button></p>
+    <p class="mono" id="libstatus"></p>
+  </section>
+
+  <!-- 2. write one word -->
+  <section id="s-write" hidden>
+    <div class="prompt-row">
+      <div class="prompt" id="prompt" aria-label="Word to write"></div>
+      <div class="tools">
+        <button class="btn soft sm" id="undo" aria-label="Undo last stroke">Undo</button>
+        <button class="btn soft sm" id="clear">Clear</button>
+        <button class="btn primary sm" id="finish" disabled>Done</button>
+      </div>
+    </div>
+    <div class="pad" id="pad"><svg id="padsvg" aria-label="Writing area"><g id="guides"></g><g class="inkg" id="inkg"></g></svg></div>
+    <p class="hint" id="hint"></p>
+  </section>
+
+  <!-- 3. review the letters -->
+  <section id="s-review" hidden>
+    <h1 style="font-size:clamp(26px,4.5vw,38px);margin-top:16px">Is every letter the right colour?</h1>
+    <p class="muted">Each colour is one letter. Tap a letter below, then tap the strokes that belong to it. If one stroke runs into the next letter, turn on <b>Cut</b> and tap where it should split. Drag a cut to move it; tap it again to remove it.</p>
+    <div class="review"><svg id="rsvg" aria-label="Your word, coloured by letter"></svg></div>
+    <div class="chips" id="chips" role="group" aria-label="Letters"></div>
+    <div class="warn" id="warn" role="status"></div>
+    <div class="bar">
+      <div class="tools"><button class="btn soft sm" id="cut" aria-pressed="false">Cut</button><button class="btn soft sm" id="rewrite">Write it again</button></div>
+      <button class="btn primary" id="accept">Looks right</button>
+    </div>
+  </section>
+
+  <!-- 4. save -->
+  <section id="s-done" hidden>
+    <h1>That's all. Thank you.</h1>
+    <p class="muted">Save the file and send it back to the person who gave you this page. Nothing has been uploaded.</p>
+    <p><button class="btn primary" id="save">Save my handwriting file</button></p>
+    <p class="mono" id="saved"></p>
+    <pre class="err" id="errors"></pre>
+    <p><button class="btn soft sm" id="again">Start a new session</button></p>
+  </section>
+</div>
+
+<script src="lib.js"></script>
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const NS='http://www.w3.org/2000/svg';
+const SENTENCES=["quick, bring the jazz and warm pie.","six lovely foxes nap by the old wharf."];
+const EXTRA=["it's","wow!","why?"];
+const WORDS=[...SENTENCES.flatMap(s=>s.split(' ')),...EXTRA];
+const PALETTE=['#2446F5','#FF5B3A','#14965A','#A03CC8','#E69600','#0096BE','#C8287A','#5A5A5A'];
+const svgEl=(t,a={},p)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e;};
+
+// ------------------------------------------------------------------ library
+let model=null;
+try{model=LM.loadModel();$('libstatus').textContent=`letter model loaded · ${LM.CLASSES.length} classes`;}
+catch(e){$('libstatus').textContent='lib.js is missing or broken: the page still records, but can only propose letters in writing order.';}
+const hasLib=typeof LM!=='undefined';
+
+// ------------------------------------------------------------------ session
+const S={writerId:'',device:'',words:[],pointerTypes:{}};
+function guessDevice(){const u=navigator.userAgent;if(/iPad|Macintosh/.test(u)&&navigator.maxTouchPoints>1)return'iPad';if(/iPhone/.test(u))return'iPhone';if(/Android/.test(u))return/Mobile/.test(u)?'Android phone':'Android tablet';if(/Mac/.test(u))return'Mac';if(/Windows/.test(u))return'Windows PC';return'Unknown';}
+$('writer').value='w'+Math.random().toString(36).slice(2,7);
+$('device').value=guessDevice();
+$('agree').addEventListener('change',()=>$('start').disabled=!$('agree').checked);
+$('start').addEventListener('click',()=>{S.writerId=$('writer').value.trim()||'anon';S.device=$('device').value.trim()||'Unknown';show('s-write');loadWord(0);});
+function show(id){for(const s of ['s-start','s-write','s-review','s-done'])$(s).hidden=s!==id;scrollTo(0,0);}
+function progress(){const n=S.words.length;$('count').textContent=`${Math.min(n+1,WORDS.length)} / ${WORDS.length}`;$('bar').style.width=(100*n/WORDS.length)+'%';}
+
+// ------------------------------------------------------------------ writing (the product's pen and guides)
+const pad=$('pad'),psvg=$('padsvg'),guides=$('guides'),inkg=$('inkg'),promptEl=$('prompt');
+let W=0,H=0,xh=60,base=0,wi=0,word='',strokes=[],cur=null,t0=0,cache=new Map();
+function sizePad(){
+  const r=pad.getBoundingClientRect();W=r.width;H=r.height;xh=Math.max(44,Math.min(72,H*.24));base=Math.round(H*.64);
+  psvg.setAttribute('viewBox',`0 0 ${W} ${H}`);guides.innerHTML='';
+  svgEl('line',{x1:0,x2:W,y1:base-xh*1.75,y2:base-xh*1.75,class:'guide',opacity:.4},guides);
+  svgEl('line',{x1:0,x2:W,y1:base-xh,y2:base-xh,class:'guide dash'},guides);
+  svgEl('line',{x1:0,x2:W,y1:base,y2:base,class:'guide'},guides);
+  svgEl('line',{x1:0,x2:W,y1:base+xh*.75,y2:base+xh*.75,class:'guide',opacity:.4},guides);
+}
+function loadWord(i){
+  wi=i;word=WORDS[i];strokes=[];cur=null;cache=new Map();inkg.innerHTML='';
+  promptEl.innerHTML='';[...word].forEach(ch=>{const s=document.createElement('span');s.className='pl';s.innerHTML=`${ch}<span class="pf" aria-hidden="true">${ch}</span>`;promptEl.appendChild(s);});
+  $('hint').textContent=`Write “${word}” on the lines, the way you normally would.`;
+  sizePad();refill();progress();$('finish').disabled=true;
+}
+function toPath(p){if(!p.length)return'';const d=p.reduce((a,[x0,y0],i,arr)=>{const[x1,y1]=arr[(i+1)%arr.length];a.push(x0.toFixed(2),y0.toFixed(2),((x0+x1)/2).toFixed(2),((y0+y1)/2).toFixed(2));return a;},['M',p[0][0].toFixed(2),p[0][1].toFixed(2),'Q']);d.push('Z');return d.join(' ');}
+function paint(el,pts,size,last,pen){
+  if(hasLib&&LM.getStroke){el.setAttribute('d',toPath(LM.getStroke(pts.map(p=>[p[0],p[1],p[2]]),{size,thinning:.6,smoothing:.5,streamline:.45,simulatePressure:!pen,last})));}
+  else{el.setAttribute('d','M'+pts.map(q=>q[0].toFixed(1)+' '+q[1].toFixed(1)).join(' L'));el.style.stroke='currentColor';el.style.strokeWidth=size*.7;el.style.fill='none';}
+}
+const guidesNow=()=>({baseline:base,xHeight:xh});
+function refill(assign){
+  // fill per letter: ink length / expected length (SPEC.md §5.3). While the pen moves: the live
+  // gap rule. After pen-up: the solver's assignment, with split strokes shared at the cut.
+  const pts=strokes.map(s=>s.points);
+  const a=assign||{letterOfStroke:hasLib?LM.liveAssign(pts,word,guidesNow()):pts.map(()=>0),splits:[]};
+  const len=[...word].map(()=>0);
+  const pieces=hasLib?LM.piecesByLetter({text:word,strokes,letterOfStroke:a.letterOfStroke,splits:a.splits})
+    :[...word].map((_,j)=>pts.map((p,k)=>a.letterOfStroke[k]===j?{stroke:k,a:0,b:p.length-1}:null).filter(Boolean));
+  pieces.forEach((ps,j)=>ps.forEach(pc=>{const p=pts[pc.stroke];let l=pc.a===0?xh*.12:0;for(let i=pc.a+1;i<=pc.b;i++)l+=Math.hypot(p[i][0]-p[i-1][0],p[i][1]-p[i-1][1]);len[j]+=l;}));
+  [...promptEl.children].forEach((el,j)=>el.style.setProperty('--f',Math.min(1,len[j]/(((hasLib&&LM.TARGET_LENGTH[word[j]])||3)*xh))));
+}
+function settle(){ // the product's re-solve after every pen-up (SPEC.md §6.2)
+  if(!model||!strokes.length)return;
+  refill(LM.segment(strokes.map(s=>s.points),word,guidesNow(),{mode:'model',model,partial:true,cache}));
+}
+function loc(e){const r=pad.getBoundingClientRect();return[+(e.clientX-r.left).toFixed(2),+(e.clientY-r.top).toFixed(2),e.pointerType==='pen'?+(e.pressure||.5).toFixed(3):.5,+(e.timeStamp-t0).toFixed(1)];}
+pad.addEventListener('pointerdown',e=>{
+  e.preventDefault();pad.setPointerCapture(e.pointerId);
+  if(!strokes.length)t0=e.timeStamp;
+  S.pointerTypes[e.pointerType]=(S.pointerTypes[e.pointerType]||0)+1;
+  cur={points:[loc(e)],el:svgEl('path',{},inkg),pen:e.pointerType==='pen'};strokes.push(cur);paint(cur.el,cur.points,xh*.16,false,cur.pen);
+});
+pad.addEventListener('pointermove',e=>{
+  if(!cur)return;const evs=e.getCoalescedEvents?e.getCoalescedEvents():[];
+  for(const ev of (evs.length?evs:[e])){const p=loc(ev),q=cur.points[cur.points.length-1];if(Math.hypot(p[0]-q[0],p[1]-q[1])<.6)continue;cur.points.push(p);}
+  paint(cur.el,cur.points,xh*.16,false,cur.pen);refill();
+});
+const up=()=>{if(!cur)return;paint(cur.el,cur.points,xh*.16,true,cur.pen);cur=null;refill();settle();$('finish').disabled=!strokes.length;};
+pad.addEventListener('pointerup',up);pad.addEventListener('pointercancel',up);
+$('undo').addEventListener('click',()=>{const s=strokes.pop();if(s)s.el.remove();cache=new Map();refill();settle();$('finish').disabled=!strokes.length;});
+$('clear').addEventListener('click',()=>loadWord(wi));
+$('finish').addEventListener('click',()=>{if(strokes.length)startReview();});
+addEventListener('resize',()=>{if(!$('s-write').hidden&&!strokes.length)sizePad();});
+
+// ------------------------------------------------------------------ review: fix letter boundaries
+// per stroke: cuts (point indices, shared by both pieces) and the letter of each piece
+let R=null,brush=0,cutMode=false,drag=null;
+function startReview(){
+  const pts=strokes.map(s=>s.points);
+  const prop=model?LM.segment(pts,word,guidesNow(),{mode:'model',model})
+    :{letterOfStroke:hasLib?LM.liveAssign(pts,word,guidesNow()):pts.map(()=>0),splits:[]};
+  const per=pts.map((p,i)=>{const sp=prop.splits.filter(s=>s.stroke===i).sort((a,b)=>a.atPoint-b.atPoint);
+    return sp.length?{cuts:sp.map(s=>s.atPoint),letters:[sp[0].left,...sp.map(s=>s.right)]}:{cuts:[],letters:[prop.letterOfStroke[i]]};});
+  R={pts,per,proposal:{mode:model?'model':'geometry',letterOfStroke:prop.letterOfStroke.slice(),splits:prop.splits.map(s=>({...s}))},guides:guidesNow()};
+  brush=0;cutMode=false;$('cut').classList.remove('on');$('cut').setAttribute('aria-pressed','false');
+  show('s-review');drawReview();
+}
+function pieces(i){const p=R.pts[i],c=R.per[i];const b=[0,...c.cuts,p.length-1];return c.letters.map((L,k)=>({L,a:b[k],b:b[k+1],k}));}
+function normalise(i){ // merge neighbouring pieces with the same letter
+  const c=R.per[i];for(let k=c.letters.length-1;k>0;k--)if(c.letters[k]===c.letters[k-1]){c.letters.splice(k,1);c.cuts.splice(k-1,1);}
+}
+let view=null;
+function drawReview(){
+  const svg=$('rsvg');svg.innerHTML='';
+  const all=R.pts.flat();const g=R.guides;
+  const x0=Math.min(...all.map(p=>p[0]))-g.xHeight*.6,x1=Math.max(...all.map(p=>p[0]))+g.xHeight*.6;
+  const y0=g.baseline-g.xHeight*2.2,y1=g.baseline+g.xHeight*1.2;
+  view={x0,y0,w:x1-x0,h:y1-y0};svg.setAttribute('viewBox',`${x0} ${y0} ${x1-x0} ${y1-y0}`);svg.setAttribute('preserveAspectRatio','xMidYMid meet');
+  for(const[yy,dash,op]of[[g.baseline,false,1],[g.baseline-g.xHeight,true,1],[g.baseline-g.xHeight*1.75,false,.4],[g.baseline+g.xHeight*.75,false,.4]])
+    svgEl('line',{x1:x0,x2:x1,y1:yy,y2:yy,class:'guide'+(dash?' dash':''),opacity:op},svg);
+  const owned=[...word].map(()=>0);
+  R.pts.forEach((p,i)=>pieces(i).forEach(pc=>{
+    owned[pc.L]++;
+    const el=svgEl('path',{fill:PALETTE[pc.L%PALETTE.length]},svg);
+    paint(el,p.slice(pc.a,pc.b+1),g.xHeight*.16,true,false);
+  }));
+  // cut markers
+  R.pts.forEach((p,i)=>R.per[i].cuts.forEach((c,k)=>{svgEl('circle',{cx:p[c][0],cy:p[c][1],r:g.xHeight*.09,fill:'#fff',stroke:'#1F1E1C','stroke-width':g.xHeight*.035,'data-s':i,'data-k':k},svg);}));
+  // letter labels under the baseline
+  [...word].forEach((ch,j)=>{const xs=[];R.pts.forEach((p,i)=>pieces(i).forEach(pc=>{if(pc.L===j)for(let q=pc.a;q<=pc.b;q++)xs.push(p[q][0]);}));
+    if(xs.length)svgEl('text',{x:xs.reduce((a,b)=>a+b)/xs.length,y:g.baseline+g.xHeight*1.05,'text-anchor':'middle','font-size':g.xHeight*.42,'font-weight':700,fill:PALETTE[j%PALETTE.length],'font-family':'Figtree, system-ui'},svg).textContent=ch;});
+  // chips
+  const chips=$('chips');chips.innerHTML='';
+  [...word].forEach((ch,j)=>{const b=document.createElement('button');b.className='chip'+(owned[j]?'':' empty');b.style.setProperty('--c',PALETTE[j%PALETTE.length]);b.textContent=ch;b.setAttribute('aria-pressed',j===brush);b.setAttribute('aria-label',`Letter ${j+1}: ${ch}`);b.addEventListener('click',()=>{brush=j;drawReview();});chips.appendChild(b);});
+  const missing=[...word].filter((_,j)=>!owned[j]);
+  $('warn').textContent=missing.length?`No ink for: ${missing.join(' ')}. Give each letter its strokes, or write the word again.`:'';
+  $('accept').disabled=missing.length>0;
+}
+function svgPoint(e){const svg=$('rsvg');const pt=svg.createSVGPoint();pt.x=e.clientX;pt.y=e.clientY;return pt.matrixTransform(svg.getScreenCTM().inverse());}
+function nearestPiece(x,y){
+  let best={d:Infinity};
+  R.pts.forEach((p,i)=>pieces(i).forEach(pc=>{for(let q=pc.a;q<=pc.b;q++){
+    const a=p[q],b=p[Math.min(q+1,pc.b)];const dx=b[0]-a[0],dy=b[1]-a[1],l2=dx*dx+dy*dy;
+    let t=l2?((x-a[0])*dx+(y-a[1])*dy)/l2:0;t=Math.max(0,Math.min(1,t));
+    const d=Math.hypot(a[0]+t*dx-x,a[1]+t*dy-y);if(d<best.d)best={d,i,k:pc.k,q:t>.5?Math.min(q+1,pc.b):q};}}));
+  return best;
+}
+function nearestCut(x,y){let best={d:Infinity};R.pts.forEach((p,i)=>R.per[i].cuts.forEach((c,k)=>{const d=Math.hypot(p[c][0]-x,p[c][1]-y);if(d<best.d)best={d,i,k};}));return best;}
+const rsvg=$('rsvg');
+rsvg.addEventListener('pointerdown',e=>{
+  e.preventDefault();const p=svgPoint(e);const tol=R.guides.xHeight*.28;
+  const c=nearestCut(p.x,p.y);
+  if(c.d<tol){drag={i:c.i,k:c.k,moved:false};rsvg.setPointerCapture(e.pointerId);return;}
+  const n=nearestPiece(p.x,p.y);if(n.d>tol)return;
+  const per=R.per[n.i],pts=R.pts[n.i];
+  if(cutMode){
+    const q=Math.max(1,Math.min(pts.length-2,n.q));
+    if(pts.length<4||per.cuts.some(c=>Math.abs(c-q)<2))return;
+    let k=0;while(k<per.cuts.length&&per.cuts[k]<q)k++;
+    per.cuts.splice(k,0,q);per.letters.splice(k+1,0,per.letters[k]);
+    // the new piece after the cut goes to the next letter by default, which is the usual fix
+    per.letters[k+1]=Math.min(word.length-1,per.letters[k]+1);
+    drawReview();
+  }else{per.letters[n.k]=brush;normalise(n.i);drawReview();}
+});
+rsvg.addEventListener('pointermove',e=>{
+  if(!drag)return;const p=svgPoint(e);const pts=R.pts[drag.i],per=R.per[drag.i];
+  const lo=(drag.k>0?per.cuts[drag.k-1]:0)+1,hi=(drag.k<per.cuts.length-1?per.cuts[drag.k+1]:pts.length-1)-1;
+  let best=per.cuts[drag.k],bd=Infinity;for(let q=lo;q<=hi;q++){const d=Math.hypot(pts[q][0]-p.x,pts[q][1]-p.y);if(d<bd){bd=d;best=q;}}
+  if(best!==per.cuts[drag.k]){per.cuts[drag.k]=best;drag.moved=true;drawReview();}
+});
+rsvg.addEventListener('pointerup',()=>{
+  if(!drag)return;const per=R.per[drag.i];
+  if(!drag.moved){per.cuts.splice(drag.k,1);per.letters.splice(drag.k+1,1);normalise(drag.i);drawReview();}
+  drag=null;
+});
+$('cut').addEventListener('click',()=>{cutMode=!cutMode;$('cut').classList.toggle('on',cutMode);$('cut').setAttribute('aria-pressed',cutMode);});
+$('rewrite').addEventListener('click',()=>{show('s-write');loadWord(wi);});
+$('accept').addEventListener('click',()=>{
+  const letterOfStroke=[],splits=[];
+  R.pts.forEach((p,i)=>{normalise(i);const c=R.per[i];letterOfStroke.push(c.letters[c.letters.length-1]);c.cuts.forEach((at,k)=>splits.push({stroke:i,atPoint:at,left:c.letters[k],right:c.letters[k+1]}));});
+  S.words.push({text:word,guides:{baseline:+R.guides.baseline.toFixed(2),xHeight:+R.guides.xHeight.toFixed(2)},strokes:R.pts.map(p=>({points:p})),letterOfStroke,splits,proposal:R.proposal});
+  if(S.words.length>=WORDS.length){progress();show('s-done');}
+  else{show('s-write');loadWord(S.words.length);}
+});
+
+// ------------------------------------------------------------------ save
+function session(){
+  const pt=Object.entries(S.pointerTypes).sort((a,b)=>b[1]-a[1])[0];
+  return{version:1,writerId:S.writerId,device:S.device,pointerType:(pt&&['touch','pen','mouse'].includes(pt[0]))?pt[0]:'touch',recordedAt:new Date().toISOString().slice(0,10),consent:$('consent-text').textContent,words:S.words};
+}
+$('save').addEventListener('click',()=>{
+  const s=session();const errs=hasLib?LM.validateSession(s):[];
+  $('errors').textContent=errs.length?'This file has problems:\n'+errs.join('\n'):'';
+  const blob=new Blob([JSON.stringify(s)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`${s.writerId}-${s.recordedAt}.json`;document.body.appendChild(a);a.click();a.remove();
+  $('saved').textContent=`Saved ${a.download} · ${s.words.length} words${errs.length?'':' · valid'}`;
+  window.lastSession=s;
+});
+$('again').addEventListener('click',()=>{S.words=[];S.pointerTypes={};$('writer').value='w'+Math.random().toString(36).slice(2,7);show('s-start');progress();});
+progress();
+window.__collect={S,WORDS,get review(){return R;},session};
+})();
+</script>

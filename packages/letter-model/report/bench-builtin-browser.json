@@ -1,0 +1,33 @@
+{
+ "note": "tools/bench/index.html run by hand in the Claude desktop app's built-in browser (Chrome 152) on 2026-09-22, final model, 3 passes over the 175 committed held-out words (UJI + Omniglot writers). That browser exposes no CPU throttling; the 4x throttled numbers are in bench-headless.json (headless Chromium with DevTools throttling).",
+ "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Claude/2.2553.13 Chrome/152.0.7977.76 Safari/537.36",
+ "perCandidateMs": {
+  "p50": 0.097,
+  "p95": 0.109,
+  "max": 0.124
+ },
+ "penUpResolveMs": {
+  "p50": 0.4,
+  "p95": 1.2,
+  "max": 3.5
+ },
+ "penUpNewCandidates": {
+  "mean": 4.7,
+  "p50": 4,
+  "p95": 12,
+  "max": 32
+ },
+ "coldResolveMs": {
+  "p50": 2.0,
+  "p95": 4.3,
+  "max": 5.5
+ },
+ "coldCandidates": {
+  "mean": 19.9,
+  "p50": 19,
+  "p95": 43,
+  "max": 52
+ },
+ "modelLoadMs": 5.1,
+ "words": 175
+}

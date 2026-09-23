@@ -1,0 +1,43 @@
+{
+  "name": "your-own-font",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "description": "Draw two sentences, get a font of your own handwriting. Everything runs in the browser.",
+  "scripts": {
+    "predev": "node scripts/copy-model.mjs",
+    "dev": "next dev",
+    "prebuild": "node scripts/copy-model.mjs",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit && npm --prefix packages/pipeline run typecheck",
+    "test": "vitest run",
+    "test:pipeline": "npm --prefix packages/pipeline test",
+    "test:all": "npm test && npm run test:pipeline",
+    "sentences": "tsx scripts/sentences.ts",
+    "e2e": "tsx scripts/e2e.ts"
+  },
+  "dependencies": {
+    "@your-own-font/pipeline": "file:./packages/pipeline",
+    "motion": "^13.4.1",
+    "next": "16.3.6",
+    "node-forge": "^1.3.1",
+    "perfect-freehand": "^1.2.2",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "uqr": "^0.1.3"
+  },
+  "devDependencies": {
+    "@testing-library/react": "^16.3.0",
+    "@types/node": "^24.0.0",
+    "@types/node-forge": "^1.3.14",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "jsdom": "^26.1.0",
+    "opentype.js": "2.0.0",
+    "playwright-core": "1.62.1",
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.7"
+  }
+}

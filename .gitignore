@@ -1,0 +1,21 @@
+# dependencies and build output
+node_modules/
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+
+# letter model: raw downloads, real handwriting and synthesized caches never go in the repo
+# (docs/letter-model.md §4, §8). Only the trained weights, the report and small fixtures ship.
+packages/letter-model/data/raw/
+packages/letter-model/data/real/
+packages/letter-model/data/cache/
+
+# the web app
+.next/
+out/
+next-env.d.ts
+*.tsbuildinfo
+.e2e/
+.env*.local
+public/letter-model.bin

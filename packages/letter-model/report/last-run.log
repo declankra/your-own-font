@@ -1,0 +1,167 @@
+[16:24:18] prepare: 4795 glyphs cutlings/train 30, ems/test 93, ems/train 279, ems/val 31, hershey/train 62, house/train 29, omniglot/test 104, omniglot/train 390, omniglot/val 26, relief/train 31, uji/test 744, uji/train 2604, uji/val 372 (1s)
+[16:24:22] synth: isolated train 283080
+[16:24:23] synth: isolated val 1566
+[16:24:23] synth: isolated test 2626
+[16:24:29] synth: negatives train 180000
+[16:24:29] synth: negatives val 4000
+[16:24:30] synth: negatives test 8000
+[16:24:39] synth: words done (21s)
+[16:24:53] candidates train: {"pos":74140,"nul":269134,"skip":20176,"words":13500} -> kept 192764 (62% ∅)
+[16:24:54] candidates val: {"pos":2862,"nul":8880,"skip":921,"words":504} -> kept 7441 (62% ∅)
+[16:24:54] candidates: 15s
+[16:26:17] train: neg_train: ∅ samples not used as ∅: 6.6% confidently read as a letter, 5.2% more letter-shaped partial letters
+[16:26:17] train: cand_train: ∅ samples not used as ∅: 5.0% confidently read as a letter, 3.6% more letter-shaped partial letters
+[16:26:17] train: neg_val: ∅ samples not used as ∅: 4.6% confidently read as a letter, 5.5% more letter-shaped partial letters
+[16:26:17] train: cand_val: ∅ samples not used as ∅: 3.4% confidently read as a letter, 3.8% more letter-shaped partial letters
+[16:26:18] train: neg_test: ∅ samples not used as ∅: 5.7% confidently read as a letter, 5.5% more letter-shaped partial letters
+[16:26:18] train: labellers 83s
+[16:26:18] train: teacher spec
+[16:26:18] train: 624379 samples (43% ∅), arch spec, 41712 params, device mps
+[16:26:50] epoch 1/12 loss 1.8217 val top1 0.7525 ∅ P 0.9622 R 0.6515 (31.7s)
+[16:27:20] epoch 2/12 loss 0.8225 val top1 0.6841 ∅ P 0.8773 R 0.9459 (30.2s)
+[16:27:49] epoch 3/12 loss 0.7149 val top1 0.7958 ∅ P 0.9219 R 0.9383 (28.9s)
+[16:28:33] epoch 4/12 loss 0.6721 val top1 0.7642 ∅ P 0.8985 R 0.9714 (44.2s)
+[16:29:19] epoch 5/12 loss 0.6462 val top1 0.8272 ∅ P 0.9324 R 0.9495 (45.8s)
+[16:30:06] epoch 6/12 loss 0.6276 val top1 0.8259 ∅ P 0.9322 R 0.9430 (47.4s)
+[16:31:15] epoch 7/12 loss 0.6122 val top1 0.8607 ∅ P 0.9487 R 0.9332 (68.2s)
+[16:32:24] epoch 8/12 loss 0.6002 val top1 0.8415 ∅ P 0.9375 R 0.9551 (69.0s)
+[16:33:20] epoch 9/12 loss 0.5896 val top1 0.8417 ∅ P 0.9320 R 0.9597 (55.7s)
+[16:34:00] epoch 10/12 loss 0.5811 val top1 0.8548 ∅ P 0.9385 R 0.9556 (39.7s)
+[16:34:39] epoch 11/12 loss 0.5753 val top1 0.8555 ∅ P 0.9409 R 0.9561 (39.4s)
+[16:35:34] epoch 12/12 loss 0.5727 val top1 0.8559 ∅ P 0.9400 R 0.9568 (54.7s)
+[16:35:34] train: student dsflat
+[16:35:45] train: 624379 samples (43% ∅), arch dsflat, 66944 params, device mps
+[16:36:16] epoch 1/40 loss 2.0877 val top1 0.5587 ∅ P 0.8261 R 0.9211 (12.9s)
+[16:36:29] epoch 2/40 loss 0.9732 val top1 0.7069 ∅ P 0.8802 R 0.9364 (13.3s)
+[16:36:42] epoch 3/40 loss 0.7025 val top1 0.7351 ∅ P 0.8900 R 0.9496 (12.6s)
+[16:36:55] epoch 4/40 loss 0.6015 val top1 0.7444 ∅ P 0.8917 R 0.9602 (13.3s)
+[16:37:07] epoch 5/40 loss 0.5452 val top1 0.7721 ∅ P 0.9050 R 0.9449 (12.5s)
+[16:37:18] epoch 6/40 loss 0.5071 val top1 0.7658 ∅ P 0.9014 R 0.9558 (10.8s)
+[16:37:31] epoch 7/40 loss 0.4791 val top1 0.7674 ∅ P 0.9010 R 0.9596 (12.7s)
+[16:37:42] epoch 8/40 loss 0.4598 val top1 0.7877 ∅ P 0.9102 R 0.9513 (11.2s)
+[16:37:53] epoch 9/40 loss 0.4468 val top1 0.7809 ∅ P 0.9100 R 0.9515 (11.3s)
+[16:38:06] epoch 10/40 loss 0.4380 val top1 0.7712 ∅ P 0.9033 R 0.9638 (12.1s)
+[16:38:10] epoch 11/40 loss 0.4318 val top1 0.7746 ∅ P 0.9059 R 0.9615 (4.8s)
+[16:38:15] epoch 12/40 loss 0.4254 val top1 0.7875 ∅ P 0.9103 R 0.9583 (4.5s)
+[16:38:19] epoch 13/40 loss 0.4214 val top1 0.7805 ∅ P 0.9081 R 0.9612 (4.5s)
+[16:38:24] epoch 14/40 loss 0.4174 val top1 0.7789 ∅ P 0.9054 R 0.9598 (4.5s)
+[16:38:29] epoch 15/40 loss 0.4147 val top1 0.7640 ∅ P 0.8973 R 0.9700 (4.6s)
+[16:38:33] epoch 16/40 loss 0.4113 val top1 0.7891 ∅ P 0.9123 R 0.9582 (4.2s)
+[16:38:37] epoch 17/40 loss 0.4084 val top1 0.7769 ∅ P 0.9045 R 0.9657 (4.4s)
+[16:38:42] epoch 18/40 loss 0.4063 val top1 0.7796 ∅ P 0.9050 R 0.9621 (4.4s)
+[16:38:48] epoch 19/40 loss 0.4031 val top1 0.7986 ∅ P 0.9142 R 0.9592 (6.3s)
+[16:38:52] epoch 20/40 loss 0.4005 val top1 0.7873 ∅ P 0.9076 R 0.9606 (4.4s)
+[16:38:57] epoch 21/40 loss 0.3978 val top1 0.8017 ∅ P 0.9169 R 0.9527 (4.4s)
+[16:39:02] epoch 22/40 loss 0.3961 val top1 0.7909 ∅ P 0.9102 R 0.9644 (5.2s)
+[16:39:11] epoch 23/40 loss 0.3931 val top1 0.7967 ∅ P 0.9124 R 0.9592 (9.0s)
+[16:39:17] epoch 24/40 loss 0.3923 val top1 0.7940 ∅ P 0.9114 R 0.9611 (6.5s)
+[16:39:24] epoch 25/40 loss 0.3897 val top1 0.7791 ∅ P 0.9050 R 0.9672 (6.6s)
+[16:39:29] epoch 26/40 loss 0.3882 val top1 0.7922 ∅ P 0.9110 R 0.9620 (5.6s)
+[16:39:35] epoch 27/40 loss 0.3872 val top1 0.7974 ∅ P 0.9144 R 0.9592 (5.8s)
+[16:39:41] epoch 28/40 loss 0.3861 val top1 0.7947 ∅ P 0.9113 R 0.9625 (5.6s)
+[16:39:46] epoch 29/40 loss 0.3844 val top1 0.7956 ∅ P 0.9121 R 0.9626 (4.8s)
+[16:39:52] epoch 30/40 loss 0.3834 val top1 0.7972 ∅ P 0.9123 R 0.9615 (6.4s)
+[16:39:59] epoch 31/40 loss 0.3821 val top1 0.8004 ∅ P 0.9151 R 0.9577 (6.9s)
+[16:40:05] epoch 32/40 loss 0.3815 val top1 0.7965 ∅ P 0.9121 R 0.9614 (5.7s)
+[16:40:11] epoch 33/40 loss 0.3804 val top1 0.7995 ∅ P 0.9142 R 0.9591 (6.1s)
+[16:40:16] epoch 34/40 loss 0.3792 val top1 0.7990 ∅ P 0.9136 R 0.9603 (5.4s)
+[16:40:23] epoch 35/40 loss 0.3788 val top1 0.7992 ∅ P 0.9137 R 0.9597 (6.7s)
+[16:40:29] epoch 36/40 loss 0.3780 val top1 0.7965 ∅ P 0.9123 R 0.9606 (5.6s)
+[16:40:34] epoch 37/40 loss 0.3776 val top1 0.7970 ∅ P 0.9131 R 0.9601 (5.6s)
+[16:40:40] epoch 38/40 loss 0.3770 val top1 0.7977 ∅ P 0.9133 R 0.9612 (5.7s)
+[16:40:45] epoch 39/40 loss 0.3773 val top1 0.7970 ∅ P 0.9125 R 0.9609 (5.2s)
+[16:40:51] epoch 40/40 loss 0.3765 val top1 0.7967 ∅ P 0.9126 R 0.9616 (5.5s)
+[16:40:51] train: ∅ margin +1.30 on validation: {'top1': 0.9374, 'null_p': 0.9935, 'null_r': 0.886}
+[16:40:51] train: 956s
+[16:40:53] export: letter-model.bin 134.7 KB (123.8 KB gzipped), 66800 weights, data hash ab9729ef91981060
+[16:40:56] export: parity fixtures 200 rasters, 1000 logits (3.2 MB)
+[16:40:56] export: 5s
+[16:41:21] tune: geometry: 90.49% with {"wWidth":1,"wVert":0.6,"wGap":15,"wCount":0.2,"cutCost":5} (defaults 90.29%)
+[16:41:21] tune: model: 94.72% with wGeoInModel 0.5, cutCost 6
+[16:41:21] tune: settle after each pen-up: 96.44% with partialCap 1.5, partialLetterBonus 10
+[16:41:23] export: letter-model.bin 134.8 KB (123.9 KB gzipped), 66800 weights, data hash ab9729ef91981060
+[16:41:26] export: parity fixtures 200 rasters, 1000 logits (3.2 MB)
+[16:41:26] export: 5s
+[16:41:26] tune: 30s
+[16:41:27] tools: tools lib.js 203 KB (model 135 KB) · bench words: 196
+[16:41:28] parity: raster parity: max |ts - py| = 5.00e-7 per pixel, scalars 5.00e-8
+[16:41:28] parity: logit parity: max |ts - torch| = 4.03e-6, argmax agrees 1000/1000
+[16:41:28] parity: ✓ test/parity.test.ts (3 tests) 134ms
+[16:41:28] parity: Tests  3 passed (3)
+[16:41:40] evaluate: top-1 93.49% (UJI 91.8%), ∅ P 98.95% R 87.24%
+[16:41:48] evaluate words_test: all           model  94.89  geometry  89.58  live  42.68  (n=7008)
+[16:41:48] evaluate words_test: touching      model  91.74  geometry   86.3  live  20.25  (n=2336)
+[16:41:48] evaluate words_test: tight         model  95.12  geometry  88.31  live  39.85  (n=2336)
+[16:41:48] evaluate words_test: wide          model  97.82  geometry  94.14  live  67.94  (n=2336)
+[16:41:48] evaluate words_test: runOn         model  79.53  geometry  71.38  live  16.82  (n=1373)
+[16:41:48] evaluate words_test: lateDotsBars  model  94.37  geometry  88.38  live  38.46  (n=2470)
+[16:41:48] evaluate words_test: uji           model  94.51  geometry  90.37  live   43.7  (n=4320)
+[16:41:48] evaluate words_test: fonts         model  95.83  geometry  88.94  live  40.69  (n=2160)
+[16:41:48] evaluate words_test: omniglot      model  94.13  geometry   85.8  live  42.42  (n=528)
+[16:41:48] evaluate words_test: incremental settle: model 95.39 geometry 82.72 (8908 checks)
+[16:41:48] evaluate words_test: node solve ms p50 1.75 p95 4.18
+[16:41:53] evaluate words_test_extra: all           model  93.77  geometry   88.7  live   44.8  (n=8979)
+[16:41:53] evaluate words_test_extra: touching      model   91.3  geometry  85.82  live  23.09  (n=2919)
+[16:41:53] evaluate words_test_extra: tight         model  92.87  geometry  87.85  live  40.62  (n=3045)
+[16:41:53] evaluate words_test_extra: wide          model  97.08  geometry  92.34  live  70.05  (n=3015)
+[16:41:53] evaluate words_test_extra: runOn         model  73.47  geometry  64.39  live   12.9  (n=1783)
+[16:41:53] evaluate words_test_extra: lateDotsBars  model  93.03  geometry  87.78  live  40.28  (n=3158)
+[16:41:53] evaluate words_test_extra: uji           model  93.86  geometry  89.95  live  45.39  (n=5832)
+[16:41:53] evaluate words_test_extra: fonts         model  94.24  geometry  89.21  live  45.04  (n=2187)
+[16:41:53] evaluate words_test_extra: omniglot      model  92.19  geometry   79.9  live  40.73  (n=960)
+[16:41:53] evaluate words_test_extra: incremental settle: model null geometry null (0 checks)
+[16:41:53] evaluate words_test_extra: node solve ms p50 2.00 p95 4.12
+[16:42:01] collect e2e: lib: letter model loaded · 32 classes
+[16:42:01] collect e2e: fix: "quick,": proposal [[[],[0]],[[],[0]],[[],[1]],[[42],[2,3]],[[],[2]],[[],[3]],[[],[4]],[[],[5]]]; cut removed (cuts left 0); re-cut and dragged: [[[],[0]],[[],[0]],[[],[1]],[[44],[2,3]],[[],[2]],[[],[3]],[[],[4]],[[],[5]]]
+[16:42:01] collect e2e: saved: Saved wsa6pl-2026-09-22.json · 18 words · valid -> wsa6pl-2026-09-22.json
+[16:42:01] collect e2e: schema: valid; structure: valid
+[16:42:01] collect e2e: page errors: none
+[16:43:12] bench: chromium     per candidate p50 0.100 p95 0.114 ms | pen-up re-solve p50 0.40 p95 1.20 ms | cold re-solve p50 1.90 p95 4.20 ms
+[16:43:12] bench: chromium_4x  per candidate p50 0.438 p95 0.511 ms | pen-up re-solve p50 2.00 p95 5.30 ms | cold re-solve p50 8.60 p95 19.10 ms
+[16:43:12] bench: webkit       per candidate p50 0.073 p95 0.089 ms | pen-up re-solve p50 0.00 p95 1.00 ms | cold re-solve p50 1.00 p95 3.00 ms
+[16:43:12] evaluate: 104s
+[16:43:12] done: prepare -> synth -> candidates -> train -> export -> tune -> tools -> parity -> evaluate in 18.9 min
+[16:47:02] export: letter-model.bin 134.8 KB (123.9 KB gzipped), 66800 weights, data hash ab9729ef91981060
+[16:47:05] export: parity fixtures 200 rasters, 1000 logits (3.3 MB)
+[16:47:05] export: 4s
+[16:47:05] done: export in 0.1 min
+[16:47:06] tools: tools lib.js 203 KB (model 135 KB) · bench words: 175
+[16:47:06] done: tools in 0.0 min
+[16:47:06] parity: raster parity: max |ts - py| = 5.00e-7 per pixel, scalars 5.00e-8
+[16:47:06] parity: logit parity: max |ts - torch| = 4.03e-6, argmax agrees 1000/1000
+[16:47:06] parity: ✓ test/parity.test.ts (3 tests) 131ms
+[16:47:06] parity: Tests  3 passed (3)
+[16:47:06] done: parity in 0.0 min
+[16:47:22] evaluate: top-1 93.49% (UJI 91.8%), ∅ P 98.95% R 87.24%
+[16:47:30] evaluate words_test: all           model  94.89  geometry  89.58  live  42.68  (n=7008)
+[16:47:30] evaluate words_test: touching      model  91.74  geometry   86.3  live  20.25  (n=2336)
+[16:47:30] evaluate words_test: tight         model  95.12  geometry  88.31  live  39.85  (n=2336)
+[16:47:30] evaluate words_test: wide          model  97.82  geometry  94.14  live  67.94  (n=2336)
+[16:47:30] evaluate words_test: runOn         model  79.53  geometry  71.38  live  16.82  (n=1373)
+[16:47:30] evaluate words_test: lateDotsBars  model  94.37  geometry  88.38  live  38.46  (n=2470)
+[16:47:30] evaluate words_test: uji           model  94.51  geometry  90.37  live   43.7  (n=4320)
+[16:47:30] evaluate words_test: fonts         model  95.83  geometry  88.94  live  40.69  (n=2160)
+[16:47:30] evaluate words_test: omniglot      model  94.13  geometry   85.8  live  42.42  (n=528)
+[16:47:30] evaluate words_test: incremental settle: model 95.39 geometry 82.72 (8908 checks)
+[16:47:30] evaluate words_test: node solve ms p50 1.77 p95 4.29
+[16:47:36] evaluate words_test_extra: all           model  93.77  geometry   88.7  live   44.8  (n=8979)
+[16:47:36] evaluate words_test_extra: touching      model   91.3  geometry  85.82  live  23.09  (n=2919)
+[16:47:36] evaluate words_test_extra: tight         model  92.87  geometry  87.85  live  40.62  (n=3045)
+[16:47:36] evaluate words_test_extra: wide          model  97.08  geometry  92.34  live  70.05  (n=3015)
+[16:47:36] evaluate words_test_extra: runOn         model  73.47  geometry  64.39  live   12.9  (n=1783)
+[16:47:36] evaluate words_test_extra: lateDotsBars  model  93.03  geometry  87.78  live  40.28  (n=3158)
+[16:47:36] evaluate words_test_extra: uji           model  93.86  geometry  89.95  live  45.39  (n=5832)
+[16:47:36] evaluate words_test_extra: fonts         model  94.24  geometry  89.21  live  45.04  (n=2187)
+[16:47:36] evaluate words_test_extra: omniglot      model  92.19  geometry   79.9  live  40.73  (n=960)
+[16:47:36] evaluate words_test_extra: incremental settle: model null geometry null (0 checks)
+[16:47:36] evaluate words_test_extra: node solve ms p50 2.10 p95 4.41
+[16:47:42] collect e2e: lib: letter model loaded · 32 classes
+[16:47:42] collect e2e: fix: "quick,": proposal [[[],[0]],[[],[0]],[[],[1]],[[42],[2,3]],[[],[2]],[[],[3]],[[],[4]],[[],[5]]]; cut removed (cuts left 0); re-cut and dragged: [[[],[0]],[[],[0]],[[],[1]],[[44],[2,3]],[[],[2]],[[],[3]],[[],[4]],[[],[5]]]
+[16:47:42] collect e2e: saved: Saved wa164l-2026-09-22.json · 18 words · valid -> wa164l-2026-09-22.json
+[16:47:42] collect e2e: schema: valid; structure: valid
+[16:47:42] collect e2e: page errors: none
+[16:48:41] bench: chromium     per candidate p50 0.098 p95 0.112 ms | pen-up re-solve p50 0.40 p95 1.20 ms | cold re-solve p50 2.00 p95 4.40 ms
+[16:48:41] bench: chromium_4x  per candidate p50 0.427 p95 0.488 ms | pen-up re-solve p50 1.90 p95 5.30 ms | cold re-solve p50 9.00 p95 19.30 ms
+[16:48:41] bench: webkit       per candidate p50 0.071 p95 0.086 ms | pen-up re-solve p50 0.00 p95 1.00 ms | cold re-solve p50 1.00 p95 3.00 ms
+[16:48:41] evaluate: 94s
+[16:48:41] done: evaluate in 1.6 min

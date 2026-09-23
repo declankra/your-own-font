@@ -1,0 +1,44 @@
+{
+  "name": "@your-own-font/pipeline",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "description": "The font pipeline that runs in a Web Worker: the on-device letter model, the stroke-to-letter segmenter, and the font build (perfect-freehand → polygon-clipping → fit-curve → opentype.js).",
+  "exports": {
+    "./letter-model": "./src/letter-model/index.ts",
+    "./font": "./src/font/index.ts",
+    "./house-hand": "./src/house-hand.ts",
+    "./worker": "./src/worker.ts",
+    "./pen": "./src/font/pen.ts",
+    "./live": "./src/letter-model/live.ts",
+    "./fixture": "./src/letter-model/fixture.ts",
+    "./alt": "./src/font/alt.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "candidates": "tsx scripts/candidates.ts",
+    "eval:segment": "tsx scripts/eval-segment.ts",
+    "validate": "tsx scripts/validate-fixture.ts",
+    "build:tools": "tsx scripts/build-tools.ts",
+    "e2e:collect": "tsx scripts/e2e-collect.ts",
+    "bench:browser": "tsx scripts/bench-browser.ts",
+    "tune": "tsx scripts/tune-segment.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.2",
+    "ajv": "^8.20.0",
+    "esbuild": "^0.28.2",
+    "playwright-core": "^1.62.1",
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.7"
+  },
+  "dependencies": {
+    "fit-curve": "^0.2.0",
+    "opentype.js": "^2.0.0",
+    "perfect-freehand": "^1.2.2",
+    "polygon-clipping": "^0.15.7"
+  }
+}
