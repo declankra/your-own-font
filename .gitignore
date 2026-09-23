@@ -19,3 +19,5 @@ next-env.d.ts
 .e2e/
 .env*.local
 public/letter-model.bin
+.vercel
+.env*
